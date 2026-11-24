@@ -7,8 +7,11 @@ Rotation-System Certificates* by Filip Majchrzak (SAPIO MORPHEUS project).
 
 - Paper: [`paper/flow_certificate_thresholds.pdf`](paper/flow_certificate_thresholds.pdf), with its LaTeX source in `paper/`.
 - Source code: <https://github.com/kosza123/flow-certificate-thresholds>.
-- Archived release 1.0.0 (paper and Lean code): Zenodo, DOI [10.5281/zenodo.24488176](https://doi.org/10.5281/zenodo.24488176).
-  This repository adds an automatic axiom check to `scripts/check.sh` (version 1.0.1); the Lean sources are unchanged.
+- Archived on Zenodo: version 1.1, DOI [10.5281/zenodo.24496271](https://doi.org/10.5281/zenodo.24496271); all
+  versions, DOI [10.5281/zenodo.24488175](https://doi.org/10.5281/zenodo.24488175); version 1.0.0, DOI
+  [10.5281/zenodo.24488176](https://doi.org/10.5281/zenodo.24488176).
+- Version 1.1 adds the literature on squared rectangles to the paper (Section 7 and Appendix A). Version 1.0.1 added
+  an automatic axiom check to `scripts/check.sh`. The Lean sources are unchanged since 1.0.0.
 
 ## The statement
 
@@ -125,7 +128,10 @@ This work makes no claim to solve a known open problem.
 - **Classical:** Kirchhoff's current formula, the matrix-tree theorem, planar duality, the rotation principle
   and Fekete's lemma.
 - **Prior work:** Bu and Pan give a linear-algebraic planarity criterion through spanning-tree numbers and
-  concatenated incidence matrices (SIAM J. Discrete Math., doi:10.1137/24M1660395). Chan, Kontorovich and Pak
+  concatenated incidence matrices (SIAM J. Discrete Math. 39 (2025), doi:10.1137/24M1660395). For terminals on a
+  common face, edge currents are the sides of a squared rectangle (Brooks, Smith, Stone and Tutte, 1940). The size of
+  such tilings is bounded by Conway (1964), Kenyon (1996), Fomin (arXiv:2103.10523; base 1.8637) and Keleti, Lacina,
+  Liu, Liu and Tuirán Rangel (2023). Chan, Kontorovich and Pak
   study inverse problems for effective resistance and spanning-tree counts.
 - **Possibly new:** the two-network threshold statement as packaged here, and this formal development. Our
   literature search was limited and is described in the paper. We claim no priority.

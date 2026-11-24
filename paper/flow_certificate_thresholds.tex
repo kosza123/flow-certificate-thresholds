@@ -50,7 +50,7 @@
 \title[Machine-checked flow-certificate thresholds for planar graphs]{Machine-Checked Flow-Certificate Thresholds\\ for Planar Graphs Using Rotation-System Certificates}
 \author{Filip Majchrzak}
 \address{Independent researcher, Poland (SAPIO MORPHEUS project)}
-\thanks{ORCID 0009-0007-3475-8900. Version 1.0, 24 November 2026. Archived at Zenodo, \href{https://doi.org/10.5281/zenodo.24488176}{doi:10.5281/zenodo.24488176}. Text licensed CC BY 4.0; Lean code Apache-2.0.}
+\thanks{ORCID 0009-0007-3475-8900. Version 1.1, 24 November 2026. Version 1.1 adds the literature on squared rectangles (Section~7 and Appendix~A); the results and the Lean code are unchanged. Archived at Zenodo: this version \href{https://doi.org/10.5281/zenodo.24496271}{doi:10.5281/zenodo.24496271}; all versions \href{https://doi.org/10.5281/zenodo.24488175}{doi:10.5281/zenodo.24488175}. Text licensed CC BY 4.0; Lean code Apache-2.0.}
 \date{24 November 2026}
 
 \begin{document}
@@ -513,6 +513,20 @@ when its own endpoints are the terminals. In a simple graph it is at least
 $\tfrac12(1/\deg x+1/\deg y)$ for an edge $xy$ \cite[Lemma~3.4]{CKP25}, hence of order at least $1/|V|$. In contrast, the quantity $\mu(G)$ of Corollary~\ref{cor:theta} allows arbitrary terminals
 and can be exponentially small; for fans it equals $1/F_{2k}$.
 
+\paragraph{Squared rectangles.} For terminals on a common face, the currents of a planar network of unit resistors
+are the side lengths of a tiling of a rectangle by squares, one square for each edge that carries current, and the
+total current is the width of the rectangle \cite{BSST}. Hence, for co-facial terminals, $1/\mu$ is the ratio of
+the width of the rectangle to its smallest square, and the quantity $\Lambda^{\mathrm{face}}_q$ of the Outlook and
+of Appendix~\ref{app:growth} is the largest such ratio, over both orientations, for tilings by at most $q$ squares.
+This classical literature contains the known bounds. Conway \cite{Conway} and Kenyon \cite{Kenyon} give
+logarithmic lower bounds on the number of squares, that is, exponential upper bounds with base $2$ on such
+ratios. Kenyon's Fibonacci tiling realises the golden ratio, and he asks for the best constants. Fomin \cite{Fomin}
+proves $\tau(G)\le1.8637^q$ for planar multigraphs with $q$ edges and deduces that an integer rectangle containing
+a unit square and with longest side at least $1.8637^q$ needs at least $q$ squares; in our notation,
+$\Lambda^{\mathrm{face}}_q\le1.8637^q$. Keleti, Lacina, Liu, Liu and Tuir\'an Rangel \cite{Keleti} bound the
+minimal integer scaling of a tiling by $n$ squares by $4^n$ and cite the Fibonacci tiling as the known witness from
+below. Version~1.0 of this paper omitted this literature.
+
 \paragraph{Equal-flow problems.} Network problems with side constraints that force flows on designated arcs to be
 equal have been studied at least since \cite{AliKenningtonShetty}; see \cite{AhujaOrlinSechiZuddas} for the simple
 equal-flow problem. Those works optimise one network under equality constraints. Our question is different: we
@@ -535,7 +549,8 @@ combinatorial idea in Lean~4 with Mathlib \cite{mathlib,lean4}. We use it to der
 classical & Kirchhoff's laws and current formula; the matrix-tree theorem; planar duality and Euler's formula; the
 rotation principle; Fekete's lemma\\
 prior work & planarity criterion via spanning-tree numbers and concatenated incidence matrices \cite{BuPan}; inverse
-problems for effective resistance and spanning-tree counts \cite{CKP25,CKP24}\\
+problems for effective resistance and spanning-tree counts \cite{CKP25,CKP24}; squared rectangles and bounds on
+their size \cite{BSST,Conway,Kenyon,Fomin,Keleti}\\
 cited, not formalised & planarity $\Leftrightarrow$ genus-$0$ rotation-system certificate (Proposition~\ref{prop:cited});
 $D=\tau(G)$ and $|N|$ as a signed tree count (classical)\\
 proved informally, not formalised & that $(C^\ast)^\sigma$ is the dual of a certificate for $G^\sigma$
@@ -551,8 +566,9 @@ Lean/Mathlib\\
 \end{tabularx}
 \end{center}
 
-Our literature search was limited. It covered web searches and the full texts of \cite{CKP25,CKP24}; for
-\cite{BuPan} only the abstract and public summaries were available. We found no earlier statement of Theorem~\ref{thm:main}. We regard the
+Our literature search was limited. For version 1.0 it covered web searches and the full texts of
+\cite{CKP25,CKP24}; for \cite{BuPan} only the abstract and public summaries were available. For version 1.1 we
+added the squared-rectangle literature \cite{BSST,Conway,Kenyon,Fomin,Keleti}. We found no earlier statement of Theorem~\ref{thm:main}. We regard the
 result as mathematically light, a corollary of classical facts, and we do not claim priority. We would be grateful
 for references to earlier occurrences.
 
@@ -562,7 +578,8 @@ The quantity $\mu(G)$ suggests an extremal problem. Let $\Lambda_q$ be the large
 planar multigraphs with $q$ edges, and let $\Lambda^{\mathrm{face}}_q$ be the same with $s,t$ on a common face.
 Appendix~\ref{app:growth} records an elementary supermultiplicativity property and the resulting existence of
 $\lim_q(\Lambda^{\mathrm{face}}_q)^{1/q}$. The value of this growth constant, and whether $\Lambda_q$ grows at the
-same exponential rate, are open as far as we know. They are the subject of ongoing work.
+same exponential rate, are open as far as we know. They are the subject of ongoing work. For co-facial terminals
+this is the classical problem of squared rectangles; see Section~\ref{sec:related}.
 
 \section*{Author contributions and use of AI}
 This work was carried out with substantial assistance from AI systems working under the author's direction. The
@@ -609,7 +626,10 @@ $T_q\le\exp(2q/\mathrm e)$ once combined with the matrix-tree theorem and $\oper
 combination is not formalised. Fekete's lemma \cite{Fekete} then gives the existence of
 $\lim_q(\Lambda^{\mathrm{face}}_q)^{1/q}=\sup_q(\Lambda^{\mathrm{face}}_q)^{1/q}$ (\code{T3\_fekete}). The fans of
 Example~\ref{ex:fan} show that this limit is at least the golden ratio $(1+\sqrt5)/2$. Its exact value is open as
-far as we know.
+far as we know. In the language of squared rectangles (Section~\ref{sec:related}) the co-facial quantity is the
+classical ratio of the width of a squared rectangle to its smallest square. The base~$2$ and Fomin's sharper base
+$1.8637$ \cite{Fomin} are known upper bounds, and the golden-ratio tiling is classical \cite{Kenyon,Keleti}. We
+found no earlier statement that the limit exists.
 
 \bibliographystyle{amsplain}
 \begin{thebibliography}{99}
@@ -621,21 +641,31 @@ far as we know.
 \bibitem{AliKenningtonShetty} A.~I.~Ali, J.~Kennington, B.~Shetty, \emph{The equal flow problem}, European J.\
   Oper.\ Res.\ \textbf{36} (1988), 107--115.
 \bibitem{Bollobas} B.~Bollob\'as, \emph{Modern Graph Theory}, Graduate Texts in Mathematics 184, Springer, 1998.
+\bibitem{BSST} R.~L.~Brooks, C.~A.~B.~Smith, A.~H.~Stone, W.~T.~Tutte, \emph{The dissection of rectangles into
+  squares}, Duke Math.\ J.\ \textbf{7} (1940), 312--340.
 \bibitem{BuPan} A.~Bu, Y.~Pan, \emph{Planarity via spanning tree number: a linear-algebraic criterion}, SIAM J.\
-  Discrete Math., doi:10.1137/24M1660395.
+  Discrete Math.\ \textbf{39} (2025), 728--751; doi:10.1137/24M1660395.
 \bibitem{CKP24} S.~H.~Chan, A.~Kontorovich, I.~Pak, \emph{Spanning trees and continued fractions},
   arXiv:2411.18782 (2024).
 \bibitem{CKP25} S.~H.~Chan, A.~Kontorovich, I.~Pak, \emph{Effective resistance in planar graphs and continued
   fractions}, arXiv:2505.19168v1 (2025).
+\bibitem{Conway} J.~H.~Conway, \emph{Mrs Perkins's quilt}, Proc.\ Cambridge Philos.\ Soc.\ \textbf{60} (1964),
+  363--368.
 \bibitem{lean4} L.~de~Moura, S.~Ullrich, \emph{The Lean 4 theorem prover and programming language}, Automated
   Deduction -- CADE 28, LNCS 12699, Springer, 2021, 625--635.
 \bibitem{DoyleSnell} P.~G.~Doyle, J.~L.~Snell, \emph{Random Walks and Electric Networks}, Carus Math.\ Monographs
   22, MAA, 1984.
 \bibitem{Fekete} M.~Fekete, \emph{\"Uber die Verteilung der Wurzeln bei gewissen algebraischen Gleichungen mit
   ganzzahligen Koeffizienten}, Math.\ Z.\ \textbf{17} (1923), 228--249.
+\bibitem{Fomin} D.~Fomin, \emph{Elementary proof for the bounds of the complexity of a planar multigraph and the
+  size of a prime rectangular squaring}, arXiv:2103.10523 (2021).
 \bibitem{Gonthier2008} G.~Gonthier, \emph{Formal proof---the four-color theorem}, Notices Amer.\ Math.\ Soc.\
   \textbf{55} (2008), 1382--1393.
 \bibitem{GrossTucker} J.~L.~Gross, T.~W.~Tucker, \emph{Topological Graph Theory}, Wiley, 1987.
+\bibitem{Keleti} T.~Keleti, S.~Lacina, C.~Liu, M.~Liu, J.~R.~Tuir\'an Rangel, \emph{Tiling of rectangles with
+  squares and related problems via Diophantine approximation}, Discrete Math.\ \textbf{346} (2023), 113442.
+\bibitem{Kenyon} R.~Kenyon, \emph{Tiling a rectangle with the fewest squares}, J.\ Combin.\ Theory Ser.\ A
+  \textbf{76} (1996), 272--291.
 \bibitem{Kirchhoff1847} G.~Kirchhoff, \emph{\"Uber die Aufl\"osung der Gleichungen, auf welche man bei der
   Untersuchung der linearen Vertheilung galvanischer Str\"ome gef\"uhrt wird}, Ann.\ Phys.\ Chem.\ \textbf{72}
   (1847), 497--508.

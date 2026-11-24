@@ -1,9 +1,9 @@
 cff-version: 1.2.0
 message: "If you use this work, please cite it as below."
 title: "Machine-Checked Flow-Certificate Thresholds for Planar Graphs Using Rotation-System Certificates"
-version: "1.0.1"
+version: "1.1.0"
 date-released: "2026-11-24"
-doi: "10.5281/zenodo.24488176"
+doi: "10.5281/zenodo.24496271"
 license: Apache-2.0
 repository-code: "https://github.com/kosza123/flow-certificate-thresholds"
 authors:

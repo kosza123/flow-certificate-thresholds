@@ -1,0 +1,143 @@
+CLEAN-ROOM VERIFICATION OF THE TWO-PORT PACKAGE CANDIDATE
+=========================================================
+
+Date (UTC):   2026-11-24, 11:20-11:25
+Performed by: an AI agent (Claude) in a Linux container, on request of the coordinating
+              session.  Nothing was published and nothing was pushed to the public repository.
+Result:       PASS, with the remarks in section 7.
+
+1. What was verified
+--------------------
+Layout of the future public repository:
+  <clean>/repo                 fresh clone of https://github.com/kosza123/flow-certificate-thresholds
+                               (branch main, commit 0f3a508cc659c357b7196d1c93ab701796c35005)
+  <clean>/repo/twoport         copied from the candidate snapshot 439853e
+  <clean>/repo/growth-constant copied from the candidate snapshot 439853e
+<clean> was a new empty directory outside the working repository.  Before the run there was no
+.lake directory in repo/ or in repo/twoport/, no symbolic link, and MATHLIB_CACHE_DIR pointed to
+a new empty directory.
+
+2. Environment
+--------------
+Linux 6.18.44 x86_64, 4 CPUs, 15 GB RAM
+elan 4.4.0
+Lean (version 4.37.0-rc1, x86_64-unknown-linux-gnu, commit 0b77e12952ad39077d80d8bd6b66d601f225c321, Release)
+Lake version 5.0.0-src+0b77e12 (Lean version 4.37.0-rc1)
+Mathlib checked out by Lake at 53dad9ed98be (as pinned in lakefile.toml and lake-manifest.json)
+Python 3.13.18, networkx 3.7 (installed into a fresh virtual environment for step 5)
+
+3. Commands and real outputs (in repo/twoport)
+----------------------------------------------
+$ lake exe cache get                                   exit 0, 83 s
+    ...
+    Attempting to download 9139 file(s) from leanprover-community/mathlib4 cache at https://cache.mathlib.org/mathlib4-master
+    Decompressed 9139 file(s)
+    Already decompressed 9139 file(s)
+
+$ ./scripts/check.sh        (unchanged)                exit 0, 71 s
+    Build completed successfully (18323 jobs).
+    OK: build, 21 axiom reports, kernel replay of 7 modules
+
+check.sh runs: lake build; a scan for sorry/admit/axiom/native_decide in the sources; the axiom
+report scripts/PrintAxioms.lean, which must give exactly [propext, Classical.choice, Quot.sound]
+for each of its 21 theorems; leanchecker on the 7 modules.
+
+Negative control:
+$ lake env leanchecker TwoPort.DoesNotExist            exit 1
+
+Additional axiom report, not part of check.sh (file kept outside the repository), for names that
+the paper lists but scripts/PrintAxioms.lean does not print directly:
+    'TwoPort.H7.gadget_M' depends on axioms: [propext, Classical.choice, Quot.sound]
+    'TwoPort.H7.q_rec' depends on axioms: [propext, Classical.choice, Quot.sound]
+    'TwoPort.H7.lam_eq_pow' depends on axioms: [propext, Classical.choice, Quot.sound]
+    'TwoPort.H7.gadget' depends on axioms: [propext, Classical.choice, Quot.sound]
+    'TwoPort.Gadget.ofData' depends on axioms: [propext, Classical.choice, Quot.sound]
+    'TwoPort.Port.Data.S_pos' depends on axioms: [propext, Classical.choice, Quot.sound]
+    'TwoPort.Port.Data.P_nonneg' depends on axioms: [propext, Classical.choice, Quot.sound]
+    'TwoPort.Port.Data.sq_le' depends on axioms: [propext, Classical.choice, Quot.sound]
+    'TwoPort.Gadget.ofData_abs_κ' depends on axioms: [propext, Classical.choice, Quot.sound]
+    'TwoPort.trace_gt_two' depends on axioms: [propext, Classical.choice, Quot.sound]
+
+4. Where the path dependency ".." puts things
+---------------------------------------------
+- Mathlib and its dependencies are materialised in repo/twoport/.lake/packages (a real directory,
+  7.6 GB after unpacking the cache); the download cache took 473 MB in MATHLIB_CACHE_DIR.
+- PlanarCore is used in place from repo/ (the parent directory).  Only PlanarCore.Fekete is
+  built, into repo/.lake/build (11 MB).  No second copy of Mathlib is created for the parent.
+- No tracked file of the public repository was modified.  twoport/lake-manifest.json was not
+  rewritten by Lake.  Both .lake directories are ignored by the existing .gitignore files.
+- No change to lakefile.toml, lake-manifest.json or scripts was needed.
+
+5. Lean sources against the development version
+-----------------------------------------------
+Compared with the development version 9c4b377 of the same package:
+- after removing all comments, the seven files TwoPort/*.lean are identical;
+- the raw difference is seven header-comment lines (the words "Stage Bn:" removed);
+- TwoPort.lean, scripts/check.sh, scripts/PrintAxioms.lean, lean-toolchain, .gitignore: identical;
+- lakefile.toml and lake-manifest.json differ only in the PlanarCore path (".." instead of the
+  development path).
+
+6. Gadget script
+----------------
+$ cd growth-constant/verify && python3 verify_gadgets.py          exit 0, < 1 s
+    ok   H7: M = (83,94,98,111), |kappa| = 1, tau = 209
+    ok   H7 level 1: 11 edges, 1/|I| = tau = 209, simple, planar, co-facial
+    ok   H7 level 2: 21 edges, 1/|I| = tau = 40545, simple, planar, co-facial
+    ok   H7 level 3: 31 edges, 1/|I| = tau = 7865521, simple, planar, co-facial
+    ok   X23: M = (63678,75857,73105,87087), |kappa| = 1, det = 1, tau = 160192
+    ok   X23: 23 edges, 1/|I| = 160192, simple, planar, co-facial
+    ok   role swap: M = Pi M^T Pi
+    ok   dual of the role swap: 23 edges, M = M^T, |kappa| = 1
+    ok   X23 o Y: 45 edges, 1/|I| = tau = 24189825343 = matrix prediction, simple, planar, co-facial
+    ok   (X23 o Y)^2: 89 edges, 1/|I| = tau = 550019993314869718360 = matrix prediction, simple, planar, co-facial
+    rho(M)^(1/22)     = 1.719401482701
+    rho(M M^T)^(1/44) = 1.719414500865  (trace 22737658727 )
+    ALL CHECKS PASSED
+The output is byte-identical to the committed verify/verify_gadgets.out.
+
+7. Remarks and limitations
+--------------------------
+(a) verify_gadgets.py must be started from its own directory.  Started from the repository root
+    (python3 growth-constant/verify/verify_gadgets.py) it stops with
+        FileNotFoundError: [Errno 2] No such file or directory: 'gadgets.json'
+    after the H7 checks, because gadgets.json is opened relative to the current directory.
+    The script was not changed.
+(b) The Lean toolchain (elan, Lean 4.37.0-rc1) was already installed in the container; it was
+    not downloaded again.  Mathlib, its dependencies and the Mathlib cache were downloaded anew.
+(c) The run used the same container image as the development of the package, not a second
+    machine or operating system.
+(d) Building the parent package (PlanarCore) on its own in the same clone was not repeated here;
+    it would download its own copy of Mathlib into repo/.lake/packages.
+(e) The paper (tex/pdf) was not rebuilt.  Its numerical claims were checked only as far as
+    verify_gadgets.py checks them.
+(f) What the Lean package does NOT prove is listed in the header of TwoPort/Main.lean: planarity
+    and co-faciality of the iterated networks (hypothesis hbridge), the hypotheses of the Fekete
+    step, and the reading of the matrix entries as spanning-tree counts.
+
+8. SHA-256 of the verified files
+--------------------------------
+twoport/
+  9d334527905a97bf74b30660aed3bfa007d70d89e61685ca14f82cea99d21749  TwoPort.lean
+  1acae09fd1f64e1b11b9b2a26e35a6af7d2f9ae5a06d7ed615f94ba77cd92964  TwoPort/Basic.lean
+  f0d04b5489e9c22fc552870921aa4a34408c27df36bad44ead6210623422577d  TwoPort/Compose.lean
+  29a524c65d56a60de7f0a5e35045a72d012c3d580ce3a381c87c31f29f7eba08  TwoPort/Growth.lean
+  979c6aa48a34764e9146c0d8a9d22f4aefac74dd088dd7c7941d3a58848199d8  TwoPort/H7.lean
+  08aa330940030aa5119908e779409547648f2469f2b8232a2be05cbdfa2bd99c  TwoPort/Main.lean
+  cd88eeac8e7a24e263079f73dd23cb11b09349583ddd0ec0864ffd8cf950870a  TwoPort/Mobius.lean
+  03fe75c21358d0ebc4a7fc0ab18248c5e7089a62b179b246d39e9285723eaf07  TwoPort/Subst.lean
+  32cbad18d087e38365ad9eef4605f9590165937bbdecae38839eb73f2ff52dab  lakefile.toml
+  da11214db504a930eb30cf11fe3f7c0bd95fcc7aea706f9004d0d0ae7a973697  lake-manifest.json
+  f11739c25d1640e2b3fda8a98af6d64e97d7b2b1c99840535587a9079b3afee7  lean-toolchain
+  793c467bd98547153c0f102aae86f30c5a6590fb2e48edf9a20dad7fd5755063  scripts/check.sh
+  f9057c6277ed02a12fb8a256bbb2f10be4339051b194525403fa4d349155ddbe  scripts/PrintAxioms.lean
+growth-constant/
+  8ca3d44f2ed99d876ba7d45eac7e40dfb98e19edac47d2800b38341102d40a1b  verify/verify_gadgets.py
+  9170320fceda94fba17ebdcd291d88dd995964b616e465e407aa7b3999422bf6  verify/gadgets.json
+  b921404eb47ac31b39cf245774d27997000ea4ac37405482232eb1f627fe44b0  verify/verify_gadgets.out
+  922a42464b4432cf4e4175c0a4fce262e1e42534cebf8efdfbbef4a3ee4fcf5d  paper/twoport_growth.tex
+  94c0d949a7ebfe53d4eb7f83ba15f06d27b0389c77a7f83c39d703b3dd1f94e9  paper/twoport_growth.pdf
+parent package files used by the build (public repository, commit 0f3a508)
+  32a97e6fd415550837919e099dd1876d1dbe6b6e830f87338581c59e5df37503  lakefile.toml
+  4c42b69441e72d2531f6aea53056f2a3b0ca8eac41ceffcc628a2ef8c2e552fa  lake-manifest.json
+  f11739c25d1640e2b3fda8a98af6d64e97d7b2b1c99840535587a9079b3afee7  lean-toolchain
+  c0e23880fb1c1be0973ffa7bd49fdd562d856112f6e030393a84477f2c064521  PlanarCore/Fekete.lean

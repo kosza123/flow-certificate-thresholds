@@ -13,6 +13,13 @@ Rotation-System Certificates* by Filip Majchrzak (SAPIO MORPHEUS project).
 - Version 1.1 adds the literature on squared rectangles to the paper (Section 7 and Appendix A). Version 1.0.1 added
   an automatic axiom check to `scripts/check.sh`. The Lean sources are unchanged since 1.0.0.
 
+## Second note: growth of the smallest current
+
+The directory [`growth-constant/`](growth-constant/) contains a second note, *Two-Port Substitution and the Growth of
+the Smallest Current in Planar Networks*, and [`twoport/`](twoport/) contains its Lean package. It shows that the
+growth constant of the ratio (longest side)/(smallest square) of squared rectangles is at least 1.7194145. See
+[`growth-constant/README.md`](growth-constant/README.md).
+
 ## The statement
 
 Let `G` be a connected planar multigraph with unit resistances. Pick terminals `s`, `t` and an edge `e` that

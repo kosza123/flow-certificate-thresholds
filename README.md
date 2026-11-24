@@ -30,6 +30,17 @@ the base `sqrt(27/8) = 1.8371...` best possible. Archived on Zenodo, DOI
 and has not yet been reviewed by an external expert; see
 [`spanning-trees-per-edge/README.md`](spanning-trees-per-edge/README.md).
 
+## Fourth note: forced-entry costs under paired interval uncertainty
+
+The directory [`forced-entry-costs/`](forced-entry-costs/) contains a fourth paper, *Forced-Entry Costs at a Fixed
+Optimal Assignment under Paired Interval Uncertainty: a Lean-Verified Exact Reduction and Its Consequences for
+Linear Programs*, with a Lean 4 project and verification scripts. Its main theorem, an exact reduction from
+quadratic shortest paths to a tolerance-type quantity of the assignment problem in a very restricted model of
+interval uncertainty, is formalised in full in Lean 4 with Mathlib. The consequences for linear programs transport
+known bounds on extension complexity and are not machine-checked. Archived on Zenodo, DOI
+[10.5281/zenodo.24511022](https://doi.org/10.5281/zenodo.24511022). The paper has not yet been reviewed by an
+external expert; see [`forced-entry-costs/README.md`](forced-entry-costs/README.md).
+
 ## The statement
 
 Let `G` be a connected planar multigraph with unit resistances. Pick terminals `s`, `t` and an edge `e` that

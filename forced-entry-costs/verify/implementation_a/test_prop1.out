@@ -1,0 +1,1 @@
+proposition 1 ok: {'instances': 400, 'violations': 0, 'optimality_equivalence_violations': 0, 'control_with_one_shared_parameter': {'instances': 400, 'violations_of_the_formula': 194}}

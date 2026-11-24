@@ -1,0 +1,12 @@
+{
+ "mixed_sign_adapter": {
+  "instances": 60,
+  "all_equal_rho_plus_QSPP": true,
+  "quadratic_term_matters": 6,
+  "max_N": 44
+ },
+ "partial_sharing": {
+  "trials": 600,
+  "mismatches": 0
+ }
+}

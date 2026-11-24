@@ -1,0 +1,138 @@
+CLEAN-ROOM VERIFICATION OF THE LEAN PROJECT (exact adapter theorem, twelve modules)
+====================================================================================
+
+Date (UTC):   2026-11-24, 18:41-18:44
+Performed by: an AI agent in a Linux container.
+Result:       PASS.  Limitations are listed in section 7.
+
+1. What was verified
+--------------------
+The directory containing this file, as published, without this file: the nineteen files listed
+in section 6.  They were taken from version control with `git archive` and unpacked into a new
+empty directory <clean>/pkg outside any repository.  This file was written after the run.  It is
+the only file added, and none of the nineteen files was changed afterwards.
+
+Before the run, in <clean>/pkg: no `.lake` directory and no symbolic link.  MATHLIB_CACHE_DIR
+pointed to a new empty directory <clean>/cache.
+
+2. Environment
+--------------
+Linux 6.18.44 x86_64 (Ubuntu 24.04), 4 CPUs, 15 GB RAM
+elan 4.4.0
+Lean (version 4.19.0, x86_64-unknown-linux-gnu, commit 6caaee842e94, Release)
+Lake version 5.0.0-6caaee8 (Lean version 4.19.0)
+Mathlib checked out by Lake at c44e0c8ee63ca166450922a373c7409c5d26b00b
+lean4checker checked out by Lake at e11f65c651edd58d68ba260015d2bfde5102cd7f (tag v4.19.0)
+(all as pinned in lean-toolchain, lakefile.toml and lake-manifest.json)
+
+3. Commands and real outputs
+----------------------------
+$ lake exe cache get                                   exit 0, 64 s   (started 18:41:16)
+    Attempting to download 6641 file(s)
+    Decompressing 6641 file(s)
+    Completed successfully!
+
+$ ./scripts/check.sh        (unchanged)                exit 0, 50 s   (started 18:42:20)
+    ... the twelve modules, the last one:
+    [1523/1524] Built AdapterComplements
+    Build completed successfully.
+    ... the kernel replay tool, the last job:
+    [8/8] Built lean4checker
+    OK: build, 57 axiom reports, kernel replay of 12 modules
+
+Wall time of the two commands together: 114 s.  The build has 1524 jobs (the twelve modules and
+the part of Mathlib they import; Mathlib itself comes from the download cache and is not
+recompiled), plus 8 jobs for the kernel replay tool.  No error and no warning.  The only
+messages are the 18 axiom reports that DagCycleAssignment, SubdivisionAssignment and
+CorrelationCoverKernel print at their ends (information messages).
+
+check.sh runs, in this order, and stops at the first failure:
+  a. lake build;
+  b. a scan of the twelve sources for sorry / admit / axiom / native_decide;
+  c. scripts/PrintAxioms.lean: 57 theorems; every reported axiom must be one of
+     propext, Classical.choice, Quot.sound;
+  d. lean4checker (replay of every declaration in the kernel) on the twelve modules.
+
+4. Controls, run separately after check.sh
+------------------------------------------
+Axiom lists reported for the 57 theorems:
+     55 theorems:  [propext, Classical.choice, Quot.sound]
+      2 theorems:  [propext]   (SapioCorrelationCover.cross_self,
+                                DagCycleAssignment.Subdivision.walk_ext)
+In particular:
+    'DagCycleAssignment.Adapter.exact_adapter' depends on axioms: [propext, Classical.choice, Quot.sound]
+
+That the check can fail was tested three times:
+
+$ lake exe lean4checker NoSuchModule                   exit 1
+    uncaught exception: Could not find any oleans for: NoSuchModule
+
+Step b.  In a copy of the directory, one line was appended to AdapterComplements.lean:
+    theorem DagCycleAssignment.placeholderControl : (1 : Nat) = 2 := by sorry
+$ ./scripts/check.sh                                   exit 1
+    FAIL: placeholder or extra axiom keyword found
+
+Step c.  In another copy, two lines were appended to scripts/PrintAxioms.lean:
+    theorem axiomControl : (1 : Nat) = 2 := sorry
+    #print axioms axiomControl
+$ ./scripts/check.sh                                   exit 1
+    FAIL: 58 axiom reports, expected 58; non-standard axioms: [sorryAx]
+
+The two copies were made after the run, next to <clean>/pkg.  They used its downloaded packages
+through a symbolic link and a copy of its build directory.  They are not part of the published
+directory.  The failure of step d on a module that does compile but does not pass the kernel
+was not tested.
+
+5. What the run created, and what it left untouched
+---------------------------------------------------
+- .lake/packages  5.8 GB  (Mathlib, its dependencies and lean4checker; a real directory)
+- .lake/build     7 MB    (the twelve modules)
+- <clean>/cache   277 MB  (download cache)
+- No file was modified: after check.sh, and again after the controls, each of the nineteen files
+  had the sha256 listed in section 6.  Lake did not rewrite lake-manifest.json.
+  `.lake/` is ignored by .gitignore.
+
+6. The files that were checked
+------------------------------
+sha256 of the nineteen files (3907 lines in the twelve .lean modules):
+fde850d24186b6e99c8c0debd641fb3ab85198b109eb66f71a1fea02bd6ea1b3  .gitignore
+734a923d7eb6b52eed7a854289f0c25133e98e188500b9ff260a4d18885171a8  AdapterBirkhoff.lean
+998d92127ed89ec04f8cbc4a2663c49b1a13b9034f4aba56be03d0bf202d261f  AdapterBounds.lean
+755bcc65a6449a6d8a0892f8a48b98613b87522e989610f54c3b630683508654  AdapterComplements.lean
+51e9de6be91d3f35d3bd3f46c0b653aee6855fd28ee743e2b057ff4813b7fc76  AdapterCost.lean
+886c8d2a1376c8388c34dfb306993bded62b7600343a3294e3f332b73dc75ada  AdapterFeatures.lean
+499aeab3b6a2e9807f8504f06aaabe80cecef931e5cc30f8a1bcbc41fedb0d48  AdapterMain.lean
+ac0b64a43f74c859f63fbd73f7276324995e40fbc8e56cec918fdec97f8c4bf5  AdapterPaths.lean
+62eaf4deab1e3aa8cea630cf40b2964dfdd13aa540594437664874230b8774a9  AdapterPattern.lean
+ebfe95fe4f5f8a525d7bc46038903ab0e102199db453118ada6929136e6a18d8  AdapterTheorem.lean
+216d2762f3580d87417613dc0e9e1bb45cce5ddca5533d6b78738e332f595a67  CorrelationCoverKernel.lean
+92c51148fbfb4196aaa2b40e3fde9cb513c5128b18bb89bd341b0fecdae837c4  DagCycleAssignment.lean
+193c97fab1abc2a5567cb547b59f0d56952a91ba8f88f15a9cee883b907fe979  README.md
+01845dc92fbc275e4f788fa9b20c33ed1cbd0c002f0029754b939091ab5778bf  SubdivisionAssignment.lean
+9d908a1653559bc59ab014ac55203904679b489fa52b7a460fdc49b709aca226  lake-manifest.json
+6b4654839b726a0cfdddfa76fea97c0b8af3960ad05c37073d73c8cc338105e6  lakefile.toml
+55e97be96000b5e9e290c9e74482e5e317861499a5540353ce845471bded8cea  lean-toolchain
+05bd8b758143ba7223d5cc9267562e2d4e153e075c4081270078761eb1866551  scripts/PrintAxioms.lean
+b9c027e698a5c335c8b393bdc907cf94eac6caeb739343502ae9eae252998426  scripts/check.sh
+
+7. Limitations
+--------------
+- The run was made by the agent that assembled the project and wrote the nine Adapter modules,
+  on the machine on which it was developed.  The directory, the Mathlib checkout and the
+  download cache were fresh.  This is a reproduction record.  It is not an independent review of
+  the mathematics, and it is not a review of whether the Lean definitions (`cost`,
+  `adapterCost`, `IsWalk`, `pathCost`, `quadCost`, `dualRow`, `uRow`, `uCol`) say what the paper
+  means.
+- elan could not install the toolchain automatically in this environment: the release server
+  that elan uses by default was not reachable.  The Lean 4.19.0 toolchain had therefore been
+  installed beforehand from the official release archive on GitHub (lean-4.19.0-linux.tar.zst,
+  sha256 6fe3ce97a58f44e2b3567d455b994eacec5bfe9ae7774f2a573444480ba813fe) and registered with
+  elan by hand.  So the first step on an ordinary machine, where elan installs the toolchain
+  named in `lean-toolchain`, was not exercised by this run.
+- Mathlib is trusted as distributed.  It was not rebuilt from source: its compiled files were
+  downloaded from the Mathlib cache.  lean4checker replays the twelve modules of this project in
+  the kernel; it does not replay Mathlib (in particular not Mathlib's proof of the
+  Birkhoff-von Neumann theorem, which is used through
+  `exists_eq_sum_perm_of_mem_doublyStochastic`).
+- The check says nothing about the parts of the paper that are not formalised; they are listed
+  in README.md under "What is NOT proved here".

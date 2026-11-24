@@ -1,0 +1,7 @@
+tiny instances (all permutations): ok
+random DAGs ok: 36
+diamond n=1: Corollary-3 formula 1+kappa+4u(G) ok for 1 graphs (matrix-level check with the constant Gamma of Remark 15 on a subset)
+diamond n=2: Corollary-3 formula 1+kappa+4u(G) ok for 2 graphs (matrix-level check with the constant Gamma of Remark 15 on a subset)
+diamond n=3: Corollary-3 formula 1+kappa+4u(G) ok for 8 graphs (matrix-level check with the constant Gamma of Remark 15 on a subset)
+formula (1), n=2, constant Gamma: ok
+ALL CONSTRUCTION CHECKS PASSED

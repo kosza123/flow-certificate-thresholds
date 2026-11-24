@@ -1,0 +1,32 @@
+B/C: one singleton block through (1,3),(2,2),(3,1), all other weights 1
+  n=1: values [2, 3, 2]  (v = 1+kappa_n = 2)
+  n=2: values [4, 5, 4]  (v = 1+kappa_n = 4)
+  n=3: values [7, 8, 7]  (v = 1+kappa_n = 7)
+  n=4: values [11, 12, 11]  (v = 1+kappa_n = 11)
+  n=5: values [16, 17, 16]  (v = 1+kappa_n = 16)
+  n=1 values 2,3,2 as in Remark 19: OK
+B: min{t: t>=2, t>=w1+w2-4} = eta_1 on {1,5}^2  -> a min program with w in the rhs DOES represent eta_1 there
+B: n=2: eta_2 on {1,5}^8 equals a max of 256 affine functions of w (= value of a min program, w in rhs only): OK
+B: duality on the n=1 example: OK
+D: eps_n = 1/(40(1+5 kappa_n))
+  n=1: kappa=1, max eta=1+5kappa=6, 1/eps=240 = 100n(n+1)+40, 40*Delta=1, nu=1
+  n=2: kappa=3, max eta=1+5kappa=16, 1/eps=640 = 100n(n+1)+40, 40*Delta=1, nu=1
+  n=3: kappa=6, max eta=1+5kappa=31, 1/eps=1240 = 100n(n+1)+40, 40*Delta=1, nu=1
+  n=10: kappa=55, max eta=1+5kappa=276, 1/eps=11040 = 100n(n+1)+40, 40*Delta=1, nu=1
+  n=100: kappa=5050, max eta=1+5kappa=25251, 1/eps=1010040 = 100n(n+1)+40, 40*Delta=1, nu=1
+  n=1000: kappa=500500, max eta=1+5kappa=2502501, 1/eps=100100040 = 100n(n+1)+40, 40*Delta=1, nu=1
+  max eta_n = 1+5kappa_n, min = 1+kappa_n on the box (n<=2, corners): OK
+F: eta_e = h_e(theta*) on 1572 (instance, entry) pairs; 'optimal everywhere iff optimal at theta*' on 400 instances (necessarily optimal: 252, not: 148): OK
+I: Remark 21
+  n=2: eta_n - (1+kappa_n) = 0 = n^2-2n
+  n=3: eta_n - (1+kappa_n) = 4 (odd n: (n-1)^2 = 4)
+  n=4: eta_n - (1+kappa_n) = 8 = n^2-2n
+  n=5: eta_n - (1+kappa_n) = 16 (odd n: (n-1)^2 = 16)
+  n=6: eta_n - (1+kappa_n) = 24 = n^2-2n
+  n=7: eta_n - (1+kappa_n) = 36 (odd n: (n-1)^2 = 36)
+  n=8: eta_n - (1+kappa_n) = 48 = n^2-2n
+  n=9: eta_n - (1+kappa_n) = 64 (odd n: (n-1)^2 = 64)
+  n=10: eta_n - (1+kappa_n) = 80 = n^2-2n
+  eps=1: t=6, bound 2^(t+1)*C(n,t+1) < 2^n first at n=27 and for all larger n<200; n=26: 84198400 vs 67108864; n=27: 113667840 vs 134217728
+I: Remark 18: weight values used in the proof of Theorem 7 (shifted): [0, 1, 2, 4] -> alphabet [1, 2, 3, 5]
+ALL OK

@@ -1,0 +1,21 @@
+{'n': 2, 't': 1, 'inequalities': 4, 'variables': 9, 'instances': 33, 'max_gap': 0.0, 'bound': 4.7096} 0.2
+{'n': 3, 't': 1, 'inequalities': 12, 'variables': 19, 'instances': 33, 'max_gap': np.float64(4.0), 'bound': 10.5967} 0.3
+{'n': 3, 't': 2, 'inequalities': 8, 'variables': 27, 'instances': 33, 'max_gap': np.float64(0.0), 'bound': 7.493} 0.4
+{'n': 4, 't': 1, 'inequalities': 24, 'variables': 33, 'instances': 33, 'max_gap': np.float64(8.0), 'bound': 18.8386} 0.5
+{'n': 4, 't': 2, 'inequalities': 32, 'variables': 65, 'instances': 33, 'max_gap': np.float64(0.0), 'bound': 13.3209} 0.6
+{'n': 4, 't': 3, 'inequalities': 16, 'variables': 81, 'instances': 33, 'max_gap': np.float64(0.0), 'bound': 10.8764} 0.7
+{'n': 5, 't': 1, 'inequalities': 40, 'variables': 51, 'instances': 33, 'max_gap': np.float64(16.0), 'bound': 29.4353} 0.8
+{'n': 5, 't': 2, 'inequalities': 80, 'variables': 131, 'instances': 33, 'max_gap': np.float64(2.666667), 'bound': 20.8139} 0.9
+{'n': 5, 't': 3, 'inequalities': 80, 'variables': 211, 'instances': 33, 'max_gap': np.float64(2.666667), 'bound': 16.9944} 1.1
+{'n': 5, 't': 4, 'inequalities': 32, 'variables': 243, 'instances': 33, 'max_gap': np.float64(0.0), 'bound': 14.7176} 1.4
+{'n': 6, 't': 1, 'inequalities': 60, 'variables': 73, 'instances': 33, 'max_gap': np.float64(24.0), 'bound': 42.3868} 1.5
+{'n': 6, 't': 2, 'inequalities': 160, 'variables': 233, 'instances': 33, 'max_gap': np.float64(4.0), 'bound': 29.972} 1.7
+{'n': 6, 't': 3, 'inequalities': 240, 'variables': 473, 'instances': 33, 'max_gap': np.float64(4.0), 'bound': 24.472} 2.1
+{'n': 6, 't': 4, 'inequalities': 192, 'variables': 665, 'instances': 11, 'max_gap': np.float64(0.0), 'bound': 21.1934} 2.4
+{'n': 6, 't': 5, 'inequalities': 64, 'variables': 729, 'instances': 11, 'max_gap': np.float64(0.0), 'bound': 18.9559} 2.6
+gap example [{'n': 2, 'L1': 4.0, 'eta': np.float64(4.0), 'claimed_LP': 4, 'claimed_true': 4}, {'n': 4, 'L1': 11.0, 'eta': np.float64(19.0), 'claimed_LP': 11, 'claimed_true': 19}, {'n': 6, 'L1': 22.0, 'eta': np.float64(46.0), 'claimed_LP': 22, 'claimed_true': 46}]
+entropy/rounding certificate ok on 24 LP optima; max E[4TV]/bound = 0.6369913502160143 2.9
+4a ok
+4b ok [(4, 2, 2), (5, 2, 2), (6, 3, 2), (6, 2, 3), (7, 2, 3), (7, 3, 2), (8, 2, 4)]
+4c ok on 20 synthetic approximate LPs (promise checked on all 5^8 probes)
+ALL PART-C CHECKS PASSED 4.276558876037598

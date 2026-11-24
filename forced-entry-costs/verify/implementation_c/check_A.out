@@ -1,0 +1,16 @@
+  k=3 arcs=[(0, 1), (1, 2), (0, 2)] pairs=[(0, 1)] N=16 M=2^16 safe=True eta_e-1=0*M
+  k=3 arcs=[(0, 1), (1, 2)] pairs=[(0, 1)] N=15 M=2^15 safe=False eta_e-1=1*M
+  k=3 arcs=[(0, 1), (1, 2), (0, 2)] pairs=[(1, 2)] N=16 M=2^16 safe=True eta_e-1=0*M
+  k=3 arcs=[(0, 1), (1, 2), (0, 2)] pairs=[(0, 2)] N=16 M=2^16 safe=False eta_e-1=1*M
+  k=4 arcs=[(0, 1), (0, 2), (1, 2), (1, 3), (2, 3), (0, 3)] pairs=[(1, 2), (1, 3), (1, 0)] N=30 M=2^30 safe=True eta_e-1=0*M
+  k=4 arcs=[(0, 1), (0, 2), (1, 2), (1, 3), (2, 3), (0, 3)] pairs=[(1, 2), (1, 2)] N=26 M=2^26 safe=True eta_e-1=0*M
+  k=4 arcs=[(0, 1), (0, 2), (1, 2), (1, 3), (2, 3), (0, 3)] pairs=[(1, 2), (2, 1)] N=26 M=2^26 safe=True eta_e-1=0*M
+  k=4 arcs=[(0, 1), (1, 2), (2, 3)] pairs=[(1, 2), (0, 3)] N=23 M=2^23 safe=False eta_e-1=2*M
+  k=3 arcs=[(0, 1), (1, 2)] pairs=[] N=11 M=2^11 safe=True eta_e-1=0*M
+  k=2 arcs=[(0, 1), (0, 1)] pairs=[(0, 1)] N=12 M=2^12 safe=False eta_e-1=1*M
+  k=5 arcs=[(0, 3), (1, 2), (1, 4), (2, 3), (2, 4), (3, 4)] pairs=[(2, 1), (0, 1), (4, 1)] N=33 M=2^33 safe=True eta_e-1=0*M
+  k=4 arcs=[(0, 1), (0, 2), (0, 3), (1, 3), (2, 3)] pairs=[(1, 0), (1, 2)] N=25 M=2^25 safe=True eta_e-1=0*M
+  k=4 arcs=[(0, 1), (0, 3), (1, 2), (1, 3), (2, 3)] pairs=[(1, 2)] N=21 M=2^21 safe=True eta_e-1=0*M
+  k=5 arcs=[(0, 2), (0, 4), (1, 2), (1, 3), (1, 4), (2, 4)] pairs=[(3, 0), (1, 3), (0, 3)] N=33 M=2^33 safe=True eta_e-1=0*M
+  k=5 arcs=[(0, 1), (0, 2), (0, 3), (0, 4), (1, 2), (1, 3), (2, 3), (3, 4)] pairs=[(1, 3), (4, 1), (2, 4)] N=35 M=2^35 safe=True eta_e-1=0*M
+A: 210 instances OK (N from 11 to 37; safe: 120, unsafe: 90)

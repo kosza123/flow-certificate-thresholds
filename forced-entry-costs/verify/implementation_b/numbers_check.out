@@ -1,0 +1,12 @@
+n=1: d=2, kappa=1, identities of Sections 3-5 ok (4 sign vectors per vertex)
+n=2: d=8, kappa=3, identities of Sections 3-5 ok (256 sign vectors per vertex)
+n=3: d=18, kappa=6, identities of Sections 3-5 ok (262144 sign vectors per vertex)
+n=4: d=32, kappa=10, identities of Sections 3-5 ok (4000 sign vectors per vertex)
+copy identity eta_n(W(w)) = T eta_m(w) + K + 1 - T: ok
+1/(64 ln 2) = 0.022542110013890053  1/(256 ln 2) = 0.005635527503472513
+epsilon=1: t = 6 ; size bound below 2^n first at n = 27 ; always below afterwards: True
+epsilon=0.5: t=23, bound below 2^n first at n=101
+epsilon=0.25: t=89, bound below 2^n first at n=390
+Remark 19: pair-local value 1+kappa and eta = 1+kappa+n^2-2n (even n): ok
+Theorem 8 sandwich on small cases: ok; largest (eta-L_t)/bound = 0.5436
+ALL NUMBER CHECKS PASSED

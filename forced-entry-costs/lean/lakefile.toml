@@ -1,0 +1,17 @@
+name = "ForcedEntryAdapter"
+defaultTargets = ["ForcedEntryAdapter"]
+
+[[require]]
+name = "mathlib"
+git = "https://github.com/leanprover-community/mathlib4"
+rev = "c44e0c8ee63ca166450922a373c7409c5d26b00b"
+
+[[lean_lib]]
+name = "ForcedEntryAdapter"
+roots = ["DagCycleAssignment", "SubdivisionAssignment", "CorrelationCoverKernel", "AdapterCost", "AdapterFeatures", "AdapterBounds", "AdapterBirkhoff", "AdapterPaths", "AdapterTheorem", "AdapterPattern", "AdapterMain", "AdapterComplements"]
+
+# Kernel replay tool matching the toolchain (Lean 4.19.0 does not ship `leanchecker`).
+[[require]]
+name = "lean4checker"
+git = "https://github.com/leanprover/lean4checker"
+rev = "v4.19.0"

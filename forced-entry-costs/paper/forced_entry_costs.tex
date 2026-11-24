@@ -1,0 +1,960 @@
+\documentclass[11pt]{amsart}
+\usepackage[margin=1in]{geometry}
+\usepackage{amssymb,amsmath,amsthm,mathtools}
+\usepackage{booktabs,array}
+\usepackage[hidelinks]{hyperref}
+\hypersetup{pdftitle={Forced-Entry Costs at a Fixed Optimal Assignment under Paired Interval Uncertainty},pdfauthor={Filip Majchrzak}}
+\IfFileExists{microtype.sty}{\usepackage[expansion=false]{microtype}}{}
+\emergencystretch=3em
+
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\one}{\mathbf{1}}
+\newcommand{\cA}{\mathcal{A}}
+\newcommand{\COR}{\mathrm{COR}}
+\newcommand{\xc}{\operatorname{xc}}
+\newcommand{\size}{\operatorname{size}}
+\newcommand{\rk}{\operatorname{rank}_+}
+\newcommand{\Ent}{\mathsf{H}}
+\newcommand{\MI}{\mathsf{I}}
+\newcommand{\TV}{\operatorname{TV}}
+\newcommand{\code}[1]{\texttt{#1}}
+
+\title[Forced-entry costs under paired interval uncertainty]{Forced-Entry Costs at a Fixed Optimal Assignment\\ under Paired Interval Uncertainty:\\ a Lean-Verified Exact Reduction\\ and Its Consequences for Linear Programs}
+\author{Filip Majchrzak}
+\address{Independent researcher, Poland (SAPIO MORPHEUS project)}
+\thanks{ORCID 0009-0007-3475-8900. Version 1.0, 24 November 2026. Archived at Zenodo, \href{https://doi.org/10.5281/zenodo.24511022}{doi:10.5281/zenodo.24511022}. Text licensed CC BY 4.0; code Apache-2.0.}
+\date{24 November 2026}
+
+\begin{document}
+
+\begin{abstract}
+Let the cost matrix of an assignment problem depend on interval parameters, and suppose that one assignment $F$ is
+optimal in every scenario. For an entry $e\notin F$, the smallest extra cost, over all scenarios, of forcing $e$
+into the solution is a tolerance-type quantity of sensitivity analysis. When the costs are nondecreasing in the parameters and no parameter is shared between
+an entry of $F$ and an entry outside $F$, it is obtained from a single assignment problem. We show that the simplest sharing changes this completely,
+even in a very restricted model: $F$ is the unique optimum in every scenario and has an explicit dual certificate,
+every parameter occurs in exactly two entries with coefficient $+1$, the uncertain entries form a matching, and all
+costs are nonnegative. An explicit construction, without perturbation, turns every quadratic shortest-path instance on a directed
+acyclic graph with nonnegative coefficients into such an instance: in every scenario the forcing cost is, up to a
+fixed additive constant, the value of a linear shortest-path problem on the same graph, and its minimum over the
+scenarios is the quadratic optimum. Hence the quantity is NP-hard, and for general instances of the model it cannot
+be approximated within a factor $2^{\mathrm{poly}(N)}$ unless $\mathrm{P}=\mathrm{NP}$. We then record what classical results on extension complexity
+imply for linear programs with a fixed feasible region and an objective affine in the weights. For an explicit
+family of $N\times N$ instances, $N=8n^2-n+1$, such a program needs exactly as many inequalities as an extended
+formulation of the correlation polytope $\COR(n)$, hence at least $1.5^n$ (Kaibel and Weltge), also for weights in
+$\{1,\dots,5\}$; for interactions along the edges of a graph $G$ the exact size is $\xc(\COR(G))$, which is
+$2^{O(\operatorname{tw}(G)+\log n)}$ with a matching lower bound in proper minor-closed classes (Aboulker et al.) and
+is $2^{\Omega(n/\log n)}$, in dimension $O(n)$, for an explicit family of bounded-degree graphs (G\"o\"os, Jain and
+Watson); every fixed additive error still needs $2^{\Omega(n)}$ inequalities, while for weights in $[1,5]$ every fixed
+relative error is achieved with $n^{O(\varepsilon^{-2})}$ inequalities. The largest forcing cost over the scenarios,
+by contrast, has a representation with $4n^2$ inequalities. The exponential bounds and the rounding
+argument are known. What is added is the reduction inside the restricted model and elementary lemmas that recover
+lifts of solutions from optimal values alone.
+The reduction theorem is formalised in full in Lean~4 with Mathlib; the statements on linear programs and the corollaries are not machine-checked, apart from the covering inequality of Kaibel and Weltge.
+\end{abstract}
+
+\maketitle
+
+\section{Introduction}
+
+\subsection*{The question}
+Let $C(\theta)$ be an $N\times N$ cost matrix depending on a vector of parameters $\theta$ that ranges over a box
+$\Theta$, and let $\cA_N$ be the polytope of doubly stochastic matrices. Suppose that one permutation matrix $F$ is
+optimal for $\min\{C(\theta)\cdot X:X\in\cA_N\}$ in \emph{every} scenario $\theta\in\Theta$. For an entry $e$ with
+$F_e=0$, the \emph{forcing cost}
+\[
+ h_e(\theta):=\min\{\,C(\theta)\cdot(X-F)\;:\;X\in\cA_N,\ X_e=1\,\}\ \ge0
+\]
+measures how much is lost in scenario $\theta$ if $e$ must be used, and its \emph{lower endpoint}
+\[
+ \eta_e:=\min_{\theta\in\Theta}h_e(\theta)
+\]
+is the amount by which the cost of $e$ has to decrease before $e$ can belong to an optimal assignment in some
+scenario. For a single cost matrix this is the classical lower tolerance of an element outside the optimal solution
+\cite{GJM,LinWen}; with interval data it is a quantity of the kind studied in tolerance analysis and in interval
+combinatorial optimisation \cite{Wendell,Hladik11,Hladik26,KZ}. In the vocabulary of interval optimisation, the
+hypothesis says that $F$ is \emph{necessarily optimal} (see \cite{Hladik12} for the complexity of this property in
+interval linear programming), and $\eta_e>0$ says that $e$ is not \emph{possibly optimal}.
+
+\begin{proposition}[no parameter shared across $F$]\label{prop:indep}
+Let $\Theta$ be a box, let $C(\theta)$ be affine in $\theta$ with nonnegative coefficients, and suppose that every
+parameter occurs only in entries of $F$ or only in entries outside $F$. Then $\eta_e=h_e(\theta^\ast)$, where
+$\theta^\ast$ puts the parameters occurring in $F$ at their upper and all other parameters at their lower endpoints.
+So $\eta_e$ is obtained by solving one assignment problem. In particular this holds when every entry of $C$ varies
+independently in an interval.
+\end{proposition}
+\begin{proof}
+By Birkhoff's theorem the minimum defining $h_e(\theta)$ is attained at a permutation matrix $X$, and
+$C(\theta)\cdot(X-F)=\sum_{X\setminus F}C_{ij}(\theta)-\sum_{F\setminus X}C_{ij}(\theta)$ is nondecreasing in the
+parameters that occur outside $F$ and nonincreasing in those that occur in $F$. So it is smallest at
+$\theta^\ast$, for all $X$ simultaneously.
+\end{proof}
+The same argument shows that $F$ is optimal in every scenario if and only if it is optimal at $\theta^\ast$. The
+proposition is elementary and presumably folklore (extreme scenarios of this kind are standard in optimisation with
+interval costs); we did not find a source.
+
+Thus, when all coefficients are nonnegative, a parameter can cause difficulty only if it is shared by an entry of
+$F$ and an entry outside $F$. The sign condition is needed: coefficients $+1$ and $-1$ in two entries outside $F$
+produce the same product term as in Theorem~\ref{thm:adapter} below (put $\beta_j-\theta_j$ on the arc $g_j\to g_j'$
+of Section~\ref{sec:adapter} and $0$ on the diagonal). We ask what happens in the mildest case with nonnegative
+coefficients: each parameter occurs in exactly \emph{two} entries, one on each side.
+
+\subsection*{The restricted model}
+We impose the following conditions, which make the instance as benign as we know how to make it.
+\begin{itemize}
+\item[(C1)] \emph{Fixed certified optimum.} $F$ is the identity and is the unique optimal point of $\cA_N$ for every
+  $\theta\in\Theta$; an optimal dual solution is given explicitly and is affine in $\theta$.
+\item[(C2)] \emph{Paired uncertainty.} $\Theta=\prod_j[0,\beta_j]$, and each $\theta_j$ occurs in exactly two entries
+  of $C(\theta)$, with coefficient $+1$ in both; one of the two entries lies on $F$.
+\item[(C3)] \emph{Matching support.} No two uncertain entries share a row or a column.
+\item[(C4)] \emph{Nonnegativity.} All entries of $C(\theta)$ are nonnegative for all $\theta\in\Theta$.
+\end{itemize}
+Throughout, a \emph{scenario} is a point of the box $\Theta$; the box is the whole uncertainty set.
+
+\subsection*{The reduction}
+Let $D=(V,A)$ be a directed acyclic graph with terminals $s\ne t$, arc costs $\alpha_a\ge0$, and a list $J$ of
+\emph{interactions}: ordered pairs $(a_j,b_j)$ of distinct arcs with coefficients $\beta_j\ge0$. The cost of an
+$s$--$t$ path $P$ is $Q(P)=\sum_{a\in P}\alpha_a+\sum_{j:\,a_j,b_j\in P}\beta_j$; minimising $Q$ is the quadratic
+shortest path problem \cite{Rostami,HuSotirov}.
+
+\begin{theorem}[exact adapter]\label{thm:adapter}
+For every such instance with at least one $s$--$t$ path and every $\varrho>0$ there is an explicit complete
+assignment instance of dimension
+$N=|V|+|A|+4|J|$, with parameters $\theta_j\in[0,\beta_j]$ $(j\in J)$ and observed entry $e=(t,s)$ of cost $\varrho$,
+which satisfies \textup{(C1)--(C4)} and
+\[
+ h_e(\theta)=\varrho+\min_{P}\Bigl[\sum_{a\in P}\alpha_a
+      +\sum_{j\in J}\bigl(\theta_j\,[a_j\in P]+(\beta_j-\theta_j)\,[b_j\in P]\bigr)\Bigr]
+ \qquad\text{for every }\theta\in\Theta ,
+\]
+the minimum being over the $s$--$t$ paths of $D$. Consequently $\eta_e=\varrho+\min_PQ(P)$.
+\end{theorem}
+
+The last sentence rests on the elementary identity $\min_{0\le\theta\le\beta}\{\theta u+(\beta-\theta)v\}=\beta uv$ for
+$u,v\in\{0,1\}$. If $\beta_j=0$ the interval of $\theta_j$ is a point and \textup{(C2)} holds only formally; this
+occurs in Theorem~\ref{thm:exact} and Corollary~\ref{cor:tw} below, where zero weights are allowed, but not in Corollaries \ref{cor:np} and
+\ref{cor:inapx} or in Theorems \ref{thm:bounded}--\ref{thm:rel}. The construction uses no perturbation and no
+limiting argument. Its ingredients are classical: a path of a directed acyclic graph as the unique cycle through a
+return arc in an assignment (the link between shortest paths and assignments usually attributed to \cite{HM}; see
+\cite[Section~IV-A]{MS} for a recent use on general graphs), and the linearisation of a product of binary variables
+\cite{GW}. What we have not found in the literature is the
+combination that realises the pairwise terms by \emph{one interval parameter shared by an entry of $F$ and an entry
+outside $F$} while keeping $F$ optimal, with a certificate, in every scenario.
+
+For $n\ge1$ let $D_n$ be a chain of $n$ ``diamonds'': an $s$--$t$ path chooses one of two branches in each layer
+and so corresponds to $z\in\{0,1\}^n$. Put a weight $w_{i,a}$ on branch $a$ of layer $i$ and an interaction of
+weight $w_{ij,ab}$ between branch $a$ of layer $i$ and branch $b$ of layer $j$, for all $i<j$ and $a,b\in\{0,1\}$.
+The weight vector $w$ has $d_n=2n^2$ coordinates, and with $\varrho=1$ Theorem~\ref{thm:adapter} gives a family of
+assignment instances of dimension $N=8n^2-n+1$ whose combinatorial data (dimension, $F$, $e$, positions of the
+parameters) do not depend on $w$, with
+\begin{equation}\label{eq:eta}
+ \eta_n(w)=1+\min_{z\in\{0,1\}^n}w\cdot m_n(z)\qquad(w\in\R^{d_n}_{\ge0}),
+\end{equation}
+where $m_n(z)\in\{0,1\}^{d_n}$ lists the indicators $[z_i=a]$ and $[(z_i,z_j)=(a,b)]$.
+
+\begin{corollary}\label{cor:np}
+Computing $\eta_e$ is NP-hard for instances satisfying \textup{(C1)--(C4)}, already for the family
+\eqref{eq:eta} with weights in $\{1,5\}$.
+\end{corollary}
+
+Together with Proposition~\ref{prop:indep} this is a sharp contrast: parameters with nonnegative coefficients that
+stay on one side of $F$ are harmless however often they occur, and one parameter pattern, an entry of $F$ sharing its parameter with one entry
+outside $F$, already makes the quantity NP-hard, in a model where recognising the optimum is not the difficulty.
+
+\begin{corollary}[no approximation in general]\label{cor:inapx}
+Let $p$ be a polynomial with nonnegative integer coefficients. Unless $\mathrm{P}=\mathrm{NP}$, there is no
+polynomial-time algorithm that, for every
+instance satisfying \textup{(C1)--(C4)} with integer data and dimension $N$, returns a number between $\eta_e$ and
+$2^{p(N)}\,\eta_e$.
+\end{corollary}
+
+This transports to the restricted assignment model the known fact that the quadratic shortest path problem cannot
+be approximated \cite{Rostami}. It concerns general directed acyclic graphs with few interactions and is proved
+from the problem of paths avoiding forbidden pairs \cite{GMO}; for the dense positive family \eqref{eq:eta} the
+picture is different (Theorem~\ref{thm:rel} below).
+
+\subsection*{Consequences for linear programs}
+The remaining results are unconditional statements about one model of linear programs. They follow from classical
+theorems on extension complexity once a few short lemmas are in place; we state plainly which part is which.
+
+\begin{definition}\label{def:lp}
+Let $W\subseteq\R^d_{\ge0}$ and $\eta:W\to\R$. A \emph{weight-affine LP representation} of $\eta$ on $W$ consists of a
+nonempty polyhedron $P\subseteq\R^k$, an affine function $a:\R^k\to\R$ and an affine map $\pi:\R^k\to\R^d$, all
+independent of $w$, with
+\[
+ \min_{y\in P}\{a(y)+w\cdot\pi(y)\}=\eta(w)\qquad\text{for all }w\in W .
+\]
+We call $(P,a,\pi)$ a \emph{weight-affine LP} and $w\mapsto\min_{y\in P}\{a(y)+w\cdot\pi(y)\}$ its \emph{value
+function}. Its \emph{size}, $\size(P)$, is the smallest number of inequalities in a description of $P$ by linear
+equations and inequalities; equations are free. $P$ may be unbounded and of any dimension.
+\end{definition}
+
+Thus the feasible region is fixed and the objective is affine in the weights themselves. This is close to the
+non-uniform model of formulation complexity of Braun, Pokutta and Zink \cite{BPZ}, with two differences that point
+in opposite directions. We require the objective to depend on the weights through one fixed affine pair $(a,\pi)$,
+whereas in \cite{BPZ} every instance has its own affine objective. And we do not assume that feasible solutions are
+realised as points of $P$ on which the objectives take their values: only the optimal values are prescribed.
+For exact representations of $\eta_n$ on the weight sets of Theorems \ref{thm:exact} and \ref{thm:bounded},
+Lemma~\ref{lem:face} and Step~1 of the proof of Theorem~\ref{thm:bounded} supply the realisations, after which such
+a representation is a formulation in the sense of \cite{BPZ}; in Theorem~\ref{thm:abs} only the approximate lifts
+\eqref{eq:lift} are available. Definitions through values appear in
+\cite[Section~2.2]{BFPS}, where the lower inequality is required for all objectives, which amounts to containing
+the polytope, and in \cite{HL}. For a polytope $Q$, $\xc(Q)$ denotes the smallest number of inequalities of a polyhedron having $Q$ as
+an affine image.
+
+\begin{theorem}[exact size]\label{thm:exact}
+The smallest size of a weight-affine LP representation of $\eta_n$ on $W=\Z^{d_n}_{\ge0}$ is exactly
+$\xc(\COR(n))$. In particular it lies between $1.5^n$ and $2^n$.
+\end{theorem}
+
+\begin{theorem}[bounded positive weights]\label{thm:bounded}
+Every weight-affine LP representation of $\eta_n$ on $W=\{1,2,3,4,5\}^{d_n}$ has size at least $1.5^n$.
+\end{theorem}
+
+In terms of the assignment dimension this is $2^{\Omega(\sqrt N)}$; for exact representations on nonnegative
+integer weights and another explicit family, Corollary~\ref{cor:tw} gives $2^{\Omega(N/\log N)}$. The number $1.5^n$ is the
+bound of Kaibel and Weltge \cite{KW} for $\COR(n)$ and for coverings of the unique-disjointness matrix; the
+exponential lower bound for $\COR(n)$ goes back to Fiorini, Massar, Pokutta, Tiwary and de Wolf \cite{FMPTW}. Our
+contribution to these two theorems is Lemma~\ref{lem:face} and Step~1 of the proof of Theorem~\ref{thm:bounded},
+which recover exact lifts of the vertices from optimal values (in Step~1, on finitely many weight vectors). For weights in
+$\{1,\dots,5\}$ every parameter interval has positive length, all costs are bounded by a polynomial in $n$, and the
+completion cost can be taken constant (Remark~\ref{rem:const}).
+
+The dense pattern of interactions is not essential for the exact statement. For a graph $G$ on $[n]$ keep only the
+interactions between layers $i<j$ with $ij\in E(G)$. Let $\eta_G$ be the resulting function of the $2n+4|E(G)|$
+weights, and let $\COR(G)=\operatorname{conv}\{((z_i)_{i\in[n]},(z_iz_j)_{ij\in E(G)}):z\in\{0,1\}^n\}$ be the
+correlation polytope of $G$, so that $\COR(n)=\COR(K_n)$.
+
+\begin{corollary}[sparse interactions]\label{cor:tw}
+The instances defining $\eta_G$ have dimension $N_G=7n+1+16|E(G)|$ and satisfy \textup{(C1)--(C4)}, and the smallest
+size of a weight-affine LP representation of $\eta_G$ on nonnegative integer weights is exactly $\xc(\COR(G))$.
+Consequently, by the theorems of Aboulker, Fiorini, Huynh, Macchia and Seif \cite{AFHMS}, it is
+$2^{O(\operatorname{tw}(G)+\log n)}$ for every $G$, where $\operatorname{tw}(G)$ is the treewidth of $G$, and at
+least $2^{c(\operatorname{tw}(G)+\log n)}$ for all $G$ in a fixed proper minor-closed class, with $c>0$ depending
+on the class. Moreover, for the explicit bounded-degree graphs of G\"o\"os, Jain and Watson \cite{GJW} it is
+$2^{\Omega(n/\log n)}=2^{\Omega(N_G/\log N_G)}$.
+\end{corollary}
+
+So the size is polynomial when the interaction graph has bounded treewidth, and for the $h\times h$ grid, where
+$n=h^2$ and $N_G=\Theta(n)$, it is $2^{\Theta(\sqrt{N_G})}$. The last statement of the corollary improves the
+dependence on the assignment dimension from $2^{\Omega(\sqrt N)}$ for the dense family to $2^{\Omega(N/\log N)}$; a
+bound $2^{\Omega(N_G)}$ would follow for all graphs with $O(n)$ edges and treewidth $\Omega(n)$ from
+\cite[Conjecture~2]{AFHMS}, which asserts the lower bound for all graphs, and for the graphs of \cite{GJW} from
+their conjecture that the logarithm in their bound can be removed.
+
+The difficulty belongs to the lower endpoint only. As a minimum of functions affine in $\theta$, $h_e$ is concave;
+minimising it over the box is the hard direction, maximising it is a linear program.
+
+\begin{proposition}[the upper endpoint]\label{prop:upper}
+Let $C(\theta)$ be affine in $\theta$ and let $\Theta$ be a polytope described by $k$ inequalities. Then
+$\max_{\theta\in\Theta}h_e(\theta)$ is the optimal value of a linear program with $(N-1)^2+k$ inequalities. For the
+instances of Theorem~\ref{thm:adapter},
+\[
+ \max_{\theta\in\Theta}h_e(\theta)=\varrho+\max\bigl\{\pi_t-\pi_s:\ \pi_y-\pi_x\le\ell_a(\theta)\ \text{for every arc }
+ a=(x,y)\text{ of }D,\ 0\le\theta\le\beta\bigr\},
+\]
+where $\ell_a(\theta)=\alpha_a+\sum_{j:\,a_j=a}\theta_j+\sum_{j:\,b_j=a}(\beta_j-\theta_j)$ and $\pi$ ranges over the
+real functions on the vertices of $D$. For the family \eqref{eq:eta}, the function
+$w\mapsto\max_{\theta}h_e(\theta)$ has a weight-affine LP representation with at most $4n^2$ inequalities on
+$\R^{d_n}_{\ge0}$.
+\end{proposition}
+
+So in one and the same model the two endpoints of the interval of forcing costs behave in opposite ways: $4n^2$
+inequalities suffice for the upper endpoint, while the lower endpoint needs at least $1.5^n$. The proposition is an
+application of linear programming duality of a kind that is standard in robust optimisation; we state it because
+it settles which endpoint carries the difficulty.
+
+\begin{theorem}[fixed additive error]\label{thm:abs}
+There are absolute constants $c>0$ and $n_0$ such that the following holds. Let $\Delta\ge0$, and let $g$ be the
+value function of a weight-affine LP $(P,a,\pi)$ with $|g(w)-\eta_n(w)|\le\Delta$ for all
+$w\in\{1,\dots,5\}^{d_n}$. Put $\nu=\max\{1,\lceil40\Delta\rceil\}$ and $m=\lfloor n/\nu\rfloor$. If $m\ge n_0$, then $P$
+has at least $2^{cm}$ inequalities.
+\end{theorem}
+
+\begin{theorem}[fixed relative error]\label{thm:rel}
+For integers $1\le t<n$ there is a weight-affine LP with at most $2^{t+1}\binom n{t+1}$ inequalities whose value
+$L_t$ satisfies, for all real $w\in[1,5]^{d_n}$,
+\[
+ 1+\kappa_n\le L_t(w)\le\eta_n(w)\le L_t(w)+n^2\sqrt{2\ln2/t},\qquad \kappa_n=\tbinom{n+1}{2}.
+\]
+Hence for $0<\varepsilon\le1$ and $t=\lceil8\ln2/\varepsilon^2\rceil$ (using the exact $2^n$-inequality
+representation if $t\ge n$) one has $L_t\le\eta_n\le(1+\varepsilon)L_t$ with $\min\{2^n,\,n^{O(\varepsilon^{-2})}\}$
+inequalities.
+\end{theorem}
+
+Theorem~\ref{thm:abs} applies the corruption lemma of Braun, Fiorini, Pokutta and Steurer \cite{BFPS}, whose
+Theorem~6 already gives $2^{\Omega(n)}$ for approximations of $\COR(n)$ that contain it; here the lifts are only
+approximate, and a further elementary estimate, \eqref{eq:lift}, controls them. Theorem~\ref{thm:rel} is a
+specialisation of correlation rounding for dense instances \cite{RT,YZ,MR,JKR}. The entropy argument is that of
+\cite[Lemma~4.5]{RT}, stated there for semidefinite hierarchies; we use only the pairwise case, which is
+self-contained and does not depend on the general statements discussed in \cite{JKR}. Together the two theorems
+say that the obstruction of Theorem~\ref{thm:bounded} concerns \emph{exact and additively accurate} weight-affine
+programs only: in this dense positive family a fixed percentage error is cheap, because
+$\eta_n(w)\ge1+\kappa_n=\Theta(n^2)$. A percentage error that tends to zero is not cheap: if the value function $L$
+of a weight-affine LP satisfies $L\le\eta_n\le(1+\varepsilon)L$ on $\{1,\dots,5\}^{d_n}$ with
+$\varepsilon\le1/(40(1+5\kappa_n))$, then $0\le\eta_n-L\le\varepsilon\eta_n\le\frac1{40}$, and
+Theorem~\ref{thm:abs} with $\nu=1$ gives at least $2^{cn}$ inequalities for $n\ge n_0$, while for
+$\varepsilon=1/(40(1+5\kappa_n))$ one has $1/\varepsilon=100n(n+1)+40$. So no family of such programs has size polynomial in $n$ and $1/\varepsilon$; compare the
+polynomial-size and fully polynomial-size relaxation schemes of \cite{BPmatching}. The constant $c$ in
+Theorem~\ref{thm:abs} is small (at most $1/(256\ln2)$), the two theorems address two extreme regimes, and the
+range between them is open.
+
+\subsection*{What is and is not shown}
+The lower bounds concern one fixed polyhedron with an objective affine in $w$ itself. They do not bound the running
+time of algorithms and do not exclude: a different linear program for each $w$; programs in which $w$ enters the
+constraint matrix; semidefinite programs; nonlinear preprocessing of $w$. Programs in which $w$ enters only the
+right-hand side are covered by duality (Remark~\ref{rem:rhs}). Two caveats deserve emphasis. First, the model is
+not invariant under re-encoding of the weights. Avis, Bremner, Tiwary and Watanabe \cite{ABTW} show that every
+decision problem in P/poly has polynomial-size \emph{weak} extended formulations, in which the objective is affine
+in a $0/1$ encoding of the input; for a two-letter alphabet the weight vector is such an encoding. We therefore
+expect (the inference is ours, and it needs their construction for the $O(\log n)$ output bits of $\eta_n$, which we
+have not written out) that a super-polynomial bound for two letters would show that $\eta_n$ has no polynomial-size
+circuits there; as $\eta_n$ can be computed in polynomial time with an NP oracle, this would show
+$\mathrm{NP}\not\subseteq\mathrm{P/poly}$. So the NP-hardness of Corollary~\ref{cor:np} for the alphabet $\{1,5\}$ comes with no unconditional bound
+on linear programs; Theorem~\ref{thm:bounded} is proved with four letters (Remark~\ref{rem:letters}), and three letters are
+open. Second, representing a function as a difference of two linear programs can be exponentially cheaper
+\cite{BHKL}. The
+theorems say that an easy feasible region, a fixed optimal solution, an explicit dual certificate and a sparse
+pattern of dependence do not by themselves give a compact linear description of the lower endpoint $\eta_e$ as a
+function of the data, although they do give one of the upper endpoint (Proposition~\ref{prop:upper}).
+
+\subsection*{Related work}
+\emph{Sensitivity and tolerance analysis.} The tolerance approach goes back to Wendell \cite{Wendell}. For a fixed
+cost vector, tolerances and stability radii are classical notions \cite{SLG,LinWen,GJM}, and for polynomially
+solvable problems they can be computed in polynomial time \cite{CW}. For general linear programs, determining the maximal tolerances of a possibly degenerate
+optimal solution is NP-hard \cite{Hladik11}; Hlad\'{\i}k \cite{Hladik26} strengthens this to inapproximability,
+gives bounds, and extends the approach to linear dependencies among the cost coefficients. Our model is a special
+case of such dependencies, for the assignment problem, with a fixed box and a different question (one direction
+instead of a common scale). We could read only the abstract and the reference list of \cite{Hladik26}; neither
+indicates an assignment-specific reduction, a two-occurrence restriction or statements on LP size, but we cannot
+exclude an overlap. For interval weights, deviation intervals of elements and their complexity are studied in
+\cite{KZ}, and the corresponding questions for activity networks in \cite{Fortin}; we know both from summaries only
+and cannot say how close their hardness results come to Corollary~\ref{cor:np}. Min-max and min-max regret
+assignment problems \cite{ABV} ask a different question.
+
+\emph{Quadratic shortest paths and conflicts.} The quadratic shortest path problem is NP-hard and cannot be
+approximated unless $\mathrm{P}=\mathrm{NP}$ \cite{Rostami}; Hu and Sotirov reduce the quadratic assignment problem
+to it on layers of parallel arcs \cite{HuSotirov}, the same kind of topology as our diamond chain, which has two
+arcs per layer; see \cite{Cela} for linearisable instances. Finding a path that avoids forbidden pairs of vertices
+is NP-hard on directed acyclic graphs \cite{GMO,Kovac}. Matching problems become hard under pairwise conflicts even
+when every component of the conflict graph is a single edge \cite{DPSW}.
+
+\emph{Extension complexity.} See \cite{Yannakakis,FMPTW,KW} for exact and \cite{BFPS,CLRS,BPZ} for approximate
+formulations. Bounds for approximations of the correlation polytope whose size depends on the approximation
+parameter are attributed in \cite[Example~3.10]{BPZ} to Braverman and Moitra \cite{BM} and to Braun and Pokutta
+\cite{BP13}; the dependence $2^{\Omega(n/\Delta)}$ in Theorem~\ref{thm:abs}, obtained here by a copy argument, should
+be compared with those results, which we have not read. The equality of the extension complexity of a polytope and of the epigraph of its support function,
+and value-only approximations for nonnegative objectives, are in \cite{HL}. We did not find Lemma~\ref{lem:face} or
+the estimate \eqref{eq:lift} stated in the form used here; both are short.
+
+\subsection*{Notation}
+$[\,\cdot\,]$ is the Iverson bracket, $C\cdot X=\sum_{u,v}C_{uv}X_{uv}$, $\one$ is the all-ones vector and $\one_T$
+the indicator vector of a set $T$. Several letters are reused. In the statements on the reduction and in Sections
+\ref{sec:adapter} and \ref{sec:diamond}, $P$ is a path, $a$ and $b$ are arcs or branch indices, $s$ and $t$ are the
+terminals, and $e$ is the observed entry. In Definition~\ref{def:lp}, in the statements on linear programs and in
+Sections \ref{sec:exact}--\ref{sec:rel}, $P$ is a polyhedron, $a$ and $b$ are affine functions (in Remark~\ref{rem:rhs}, $b$ is
+a vector), and $S,T$ are sets or tuples of indices; in Section~\ref{sec:rel} the letters $r,s,t$ are integers.
+
+\subsection*{Status of verification}
+This work was produced by AI agents under the author's direction (see the end of the paper). We therefore state what
+has been checked and how.
+\begin{itemize}
+\item \emph{Proof review.} The proofs were first written as project notes; a separate AI agent of the same project
+  re-derived them step by step and reported no error. The present text was then reviewed by another AI agent, which
+  re-derived Sections \ref{sec:adapter}--\ref{sec:rel} as written, implemented the construction of
+  Section~\ref{sec:adapter} from this text alone, and compared the two imported statements, \cite[Lemma~4]{BFPS}
+  and the covering bound of \cite{KW}, with their arXiv versions. It found no error in a theorem, proof step,
+  constant or count. It did find inaccurate sentences about cited work and about what had been checked, a hypothesis
+  missing from the statement of Theorem~\ref{thm:adapter} in the introduction, an open question that is settled by
+  duality (now Remark~\ref{rem:rhs}), and slips in two side remarks; all are corrected here. The passages added or changed after that review, among them Corollaries \ref{cor:inapx} and \ref{cor:tw}, Remark~\ref{rem:rhs}, Proposition~\ref{prop:upper}, the general form of Proposition~\ref{prop:indep} and Section~\ref{sec:formal}, were checked in three further passes by other AI agents, two of them with their own code; they found no error and several formulations that claimed too much, corrected here.
+\item \emph{Computation.} The construction was implemented independently four times: once from the project's
+  written description and three times from Section~\ref{sec:adapter} of this text. The numbers below are those of
+  the first two implementations. In exact rational arithmetic, for the diamond family
+  with $n\le3$ and for $96$ random directed acyclic graphs, in corner scenarios and in sampled interior ones, the
+  identity is optimal, the dual certificate is feasible, and the forced value equals the route minimum; uniqueness
+  of the optimal permutation was checked for $n=2,3$ in a subsample of the scenarios, for the random graphs, and by
+  enumeration of all permutations for instances with $N\le9$. For $n=4,5$ $(N=125,196)$ optimality, the dual
+  certificate and the forced value were checked in sampled scenarios, with a floating-point assignment solver on
+  integer-scaled matrices. Formula \eqref{eq:eta} was confirmed for $n=2,3$ over all corner scenarios, the formula in
+  the proof of Corollary~\ref{cor:np} for all graphs on at most three vertices, and the reduction in the proof of
+  Corollary~\ref{cor:inapx} on $250$ random instances (two implementations). Proposition~\ref{prop:indep} was
+  checked by enumeration on $400$ random instances with $N\le4$, Corollary~\ref{cor:tw} (dimension and value formula)
+  on $10$ instances with $n\le4$. With a floating-point linear programming solver: the inequalities of
+  Theorem~\ref{thm:rel} for $n\le6$; the two programs in the proof of Proposition~\ref{prop:upper} on $40$ random
+  graphs, with the exact forced value at the maximising scenario; and, for $n=2,3$, the fixed polyhedron with $4n^2$
+  inequalities. These computations are consistency checks, not proofs.
+\item \emph{Formal verification.} Theorem~\ref{thm:adapter} is machine-checked in Lean~4 in full: the dimension,
+  conditions \textup{(C1)--(C4)} including uniqueness among all doubly stochastic matrices, the formula for
+  $h_e(\theta)$ in every scenario and the formula for $\eta_e$; see Section~\ref{sec:formal} for the exact statement
+  and its qualifications. The covering inequality of \cite{KW} is formalised as well. Not formalised:
+  Section~\ref{sec:diamond}, Propositions \ref{prop:indep} and \ref{prop:upper}, the corollaries,
+  Lemma~\ref{lem:face} and Theorems \ref{thm:exact}--\ref{thm:rel}.
+\item \emph{Literature.} The search was limited to open sources. Of the works cited,
+  \cite{AFHMS,ABTW,BHKL,BFPS,BPmatching,BPZ,Cela,CLRS,FMPTW,GJW,HL,HuSotirov,JKR,KW,Kovac,MR,MS,RT} were opened in their arXiv
+  versions and the passages used were read; theorem and section numbers refer to those versions.
+  \cite{ABV,CW,DPSW,Fortin,GJM,Hladik11,Hladik12,Hladik26,KZ,LinWen,Rostami,YZ} are known to us only from abstracts
+  or database summaries, and \cite{BM,BP13,GJS,GMO,GW,HM,Karp,SLG,Wendell,Yannakakis} only from bibliographic
+  records; statements about these two groups repeat the summaries or the standard attribution. For the main claim
+  we could not read the full texts of \cite{Hladik26}, \cite{KZ} and \cite{Fortin}; see the paragraph on related
+  work.
+\end{itemize}
+No external expert has reviewed this paper. We welcome corrections.
+
+\section{The adapter}\label{sec:adapter}
+
+\subsection{Construction}
+Let $D,s,t,\alpha,J,\beta$ be as in the introduction, with at least one $s$--$t$ path; parallel arcs are distinct
+arcs. Write $A_0=\sum_a\alpha_a$, $B_0=\sum_j\beta_j$, fix $\varrho>0$ and a number
+\begin{equation}\label{eq:Gamma}
+ \Gamma\ \ge\ \varrho+A_0+2B_0+1 .
+\end{equation}
+Replace every arc $a=(x,y)$ of $D$ by a directed chain from $x$ to $y$ through new vertices, as follows. The first
+arc of the chain goes from $x$ to a new vertex $p_a$ and has cost $\alpha_a$. Then, in a fixed order, for every
+interaction $j$ in which $a$ occurs:
+\begin{itemize}
+\item if $a=a_j$: add new vertices $f_j,f_j'$, an arc of cost $0$ from the current end of the chain to $f_j$, and an
+  arc $f_j\to f_j'$ of cost $\theta_j$;
+\item if $a=b_j$: add new vertices $g_j,g_j'$, an arc of cost $0$ from the current end of the chain to $g_j$, and an
+  arc $g_j\to g_j'$ of cost $\beta_j$.
+\end{itemize}
+Finally join the current end of the chain to $y$ by an arc of cost $0$. Let $D'$ be the resulting graph; it has
+$N=|V|+|A|+4|J|$ vertices. Add the \emph{return arc} $e=(t,s)$ of cost $\varrho$.
+
+Rows and columns of the cost matrix $C(\theta)$ are indexed by the vertices of $D'$. Every arc of $D'$ and the arc
+$e$ give an off-diagonal entry with the stated cost; these are the \emph{designated} entries. Diagonal entries are
+$0$, except $C_{g_jg_j}(\theta)=\theta_j$ for $j\in J$. All remaining off-diagonal entries (\emph{completion}
+entries) have cost $\Gamma$. The scenario box is $\Theta=\prod_j[0,\beta_j]$ and $F$ is the identity.
+
+The parameter $\theta_j$ occurs exactly in the entries $(f_j,f_j')$ and $(g_j,g_j)$, with coefficient $1$; the
+second lies on $F$. The vertices $f_j,f'_j,g_j$ $(j\in J)$ are pairwise distinct, which gives (C2) and (C3); (C4) is
+clear. The pattern of the matrix depends only on $D$ and $J$, not on the numbers $\alpha,\beta$.
+
+\subsection{Proof of Theorem \ref{thm:adapter}}
+
+\begin{lemma}\label{lem:paths}
+$D'$ is acyclic, and every new vertex has exactly one entering and one leaving arc in $D'$. Contracting the chains
+gives a bijection $P'\mapsto P$ between the $s$--$t$ paths of $D'$ and those of $D$; the path $P'$ passes through
+$f_j,f_j'$ if and only if $a_j\in P$, and through $g_j,g_j'$ if and only if $b_j\in P$.
+\end{lemma}
+\begin{proof}
+$D'$ is a subdivision of $D$, and the new vertices are the interior vertices of the chains.
+\end{proof}
+
+\begin{lemma}\label{lem:perm}
+Let $\sigma\ne\mathrm{id}$ be a permutation of the vertices such that $(v,\sigma(v))$ is a designated entry whenever
+$\sigma(v)\ne v$. Then the non-fixed points of $\sigma$ form one cycle, consisting of $e$ and an $s$--$t$ path of
+$D'$. Conversely every $s$--$t$ path $P'$ of $D'$ defines such a permutation; we denote it by $\sigma_P$, where $P$ is
+the path of $D$ corresponding to $P'$ by Lemma~\ref{lem:paths}.
+\end{lemma}
+\begin{proof}
+Each nontrivial cycle of $\sigma$ is a directed cycle of $D'+e$. As $D'$ is acyclic it contains $e$; as the cycles
+of $\sigma$ are disjoint there is only one.
+\end{proof}
+
+\begin{lemma}[cost identity]\label{lem:cost}
+For every $s$--$t$ path $P$ of $D$ and every $\theta\in\Theta$,
+\[
+ C(\theta)\cdot(\sigma_P-F)=\varrho+\sum_{a\in P}\alpha_a
+   +\sum_{j\in J}\bigl(\theta_j[a_j\in P]+(\beta_j-\theta_j)[b_j\in P]\bigr)\ \in\ [\varrho,\ \varrho+A_0+B_0].
+\]
+\end{lemma}
+\begin{proof}
+The off-diagonal entries of $\sigma_P$ are $e$ (cost $\varrho$) and the arcs of the chains of the arcs $a\in P$: the
+first arc of each chain (cost $\alpha_a$), arcs of cost $0$, the arcs $f_j\to f_j'$ with $a_j\in P$ (cost
+$\theta_j$) and the arcs $g_j\to g_j'$ with $b_j\in P$ (cost $\beta_j$), by Lemma~\ref{lem:paths}. Passing from $F$
+to $\sigma_P$ removes the diagonal entries of the vertices on the cycle; these are $0$ except $\theta_j$ at $g_j$ for
+$b_j\in P$. For the bounds note $0\le\theta_ju+(\beta_j-\theta_j)v\le\beta_j$ for $u,v\in\{0,1\}$.
+The equality is algebraic: it holds for every real $\theta$ and without any assumption on signs; the box and
+$\beta\ge0$ are used only for the bounds and, later, for the minimum.
+\end{proof}
+
+\begin{lemma}[completion]\label{lem:compl}
+If a permutation $\sigma$ uses a completion entry, then $C(\theta)\cdot(\sigma-F)\ge\Gamma-B_0\ge\varrho+A_0+B_0+1$
+for every $\theta\in\Theta$.
+\end{lemma}
+\begin{proof}
+All entries are nonnegative, so $C(\theta)\cdot\sigma\ge\Gamma$, while $C(\theta)\cdot F=\sum_j\theta_j\le B_0$.
+\end{proof}
+
+\begin{lemma}[dual certificate]\label{lem:dual}
+For $\theta\in\Theta$ put $\lambda_{g_j}=\theta_j$ for $j\in J$, $\lambda_v=0$ for all other rows $v$, and $\mu_v=0$ for
+all columns. Then $\lambda_u+\mu_v\le C_{uv}(\theta)$ for all $u,v$, with equality on the diagonal, and
+$\sum_v\lambda_v+\sum_v\mu_v=C(\theta)\cdot F$. Hence $F$ is optimal in every scenario.
+\end{lemma}
+\begin{proof}
+In row $g_j$ the entries are $\theta_j$ (diagonal), $\beta_j\ge\theta_j$ (the arc $g_j\to g'_j$) and
+$\Gamma>\beta_j$ (completion). In all other rows the left side is $0$ and the entries are nonnegative.
+\end{proof}
+
+\begin{proof}[Proof of Theorem \ref{thm:adapter}]
+By Lemmas \ref{lem:perm}--\ref{lem:compl} every permutation $\sigma\ne\mathrm{id}$ satisfies
+$C(\theta)\cdot(\sigma-F)\ge\varrho>0$. By Birkhoff's theorem every $X\in\cA_N$ is a convex combination of
+permutation matrices; if $X\ne F$ one of them is not the identity, so $C(\theta)\cdot(X-F)>0$. This proves
+uniqueness in (C1), and Lemma~\ref{lem:dual} gives the dual certificate.
+
+Let $X\in\cA_N$ with $X_e=1$. Every permutation in a Birkhoff decomposition of $X$ has $e$-entry $1$. Such a
+permutation either uses a completion entry, and then costs at least $\varrho+A_0+B_0+1$ more than $F$
+(Lemma~\ref{lem:compl}), or uses designated entries only, and then equals some $\sigma_P$ (Lemma~\ref{lem:perm}),
+whose relative cost is given by Lemma~\ref{lem:cost} and is at most $\varrho+A_0+B_0$. Since $D$ has an $s$--$t$
+path, the minimum over the face $X_e=1$ is attained by some $\sigma_P$, which is the formula for $h_e(\theta)$.
+
+Finally $\min_\theta\min_P=\min_P\min_\theta$, the parameters are independent, and
+$\min_{0\le\theta\le\beta}\{\theta u+(\beta-\theta)v\}$ equals $0$ unless $u=v=1$, when it equals $\beta$. This gives
+$\eta_e=\varrho+\min_PQ(P)$.
+\end{proof}
+
+\begin{remark}\label{rem:gap}
+The proof shows $C(\theta)\cdot(X-F)\ge\varrho$ on the face $X_e=1$ and for every permutation $X\ne F$. There is no
+uniform positive gap over fractional points close to $F$. Outside the box $\Theta$ the identity need not be optimal.
+The formalisation of Section~\ref{sec:formal} records which hypothesis each step uses: Lemma~\ref{lem:dual} needs
+neither a path nor acyclicity nor $\varrho>0$, only nonnegativity, the box and $B_0\le\Gamma$; $\varrho>0$ is used
+only for strict uniqueness; the reduction of the face $X_e=1$ to permutations through $e$ holds for every cost
+matrix; and the assumption $a_j\ne b_j$ is not used at all.
+\end{remark}
+
+\begin{proof}[Proof of Corollary \ref{cor:inapx}]
+Deciding whether a directed acyclic graph $G$ has an $s$--$t$ path that contains at most one vertex from each of
+a given list of pairs of distinct vertices is NP-complete \cite{GMO}; see also \cite{Kovac}. We may assume that $G$ has an
+$s$--$t$ path. Replace every vertex $v$ of $G$ by two vertices $v^-,v^+$ and an arc $\bar a_v=(v^-,v^+)$, and
+every arc $(u,v)$ of $G$ by $(u^+,v^-)$. The paths from $s^-$ to $t^+$ in the new directed acyclic graph correspond
+to the $s$--$t$ paths of $G$, and such a path contains $v$ if and only if it uses $\bar a_v$. Let $\alpha\equiv0$
+and $\varrho=1$, and for every listed pair $\{u,v\}$ introduce one interaction $(\bar a_u,\bar a_v)$ with
+coefficient $M$, a positive integer. By Theorem~\ref{thm:adapter}, $\eta_e=1$ if a path of the required kind
+exists and $\eta_e\ge1+M$ otherwise. The dimension $N$ does not depend on $M$; take $M=2^{p(N)}$ and
+$\Gamma=2+2M|J|$, so that all entries are integers with polynomially many digits. An algorithm as in the statement
+would return a number at most $M$ in the first case and at least $1+M$ in the second.
+\end{proof}
+
+\section{The diamond family and the correlation polytope}\label{sec:diamond}
+
+Let $D_n$ have vertices $v_0,\dots,v_n$ and $b_{i,0},b_{i,1}$ $(1\le i\le n)$ and arcs
+$d_{i,a}=(v_{i-1},b_{i,a})$, $(b_{i,a},v_i)$; $s=v_0$, $t=v_n$. The $s$--$t$ paths are the paths $P_z$, $z\in\{0,1\}^n$, where $P_z$ uses $d_{i,z_i}$ in layer
+$i$. Give
+$d_{i,a}$ the cost $w_{i,a}$, the other arcs cost $0$, and include the interaction $(d_{i,a},d_{j,b})$ with
+coefficient $w_{ij,ab}$ for all $i<j$, $a,b\in\{0,1\}$, whether or not the weight vanishes. There are $4n$ arcs,
+$3n+1$ vertices and $2n(n-1)$ interactions, so $N=(3n+1)+4n+8n(n-1)=8n^2-n+1$, and $Q(P_z)=w\cdot m_n(z)$.
+Theorem~\ref{thm:adapter} with $\varrho=1$ gives \eqref{eq:eta}. The map from $w$ to the pair (matrix of lower
+endpoints, matrix of upper endpoints) is affine.
+
+\begin{remark}\label{rem:const}
+Condition \eqref{eq:Gamma} allows $\Gamma(w)=2+\sum w_{i,a}+2\sum w_{ij,ab}$, affine in $w$, or, for weights in
+$[0,5]$, the constant $\Gamma=2+10n+20n(n-1)$.
+\end{remark}
+
+Each $m_n(z)$ has exactly one coordinate equal to $1$ in each of the $n$ singleton blocks $\{(i,0),(i,1)\}$ and in
+each of the $\binom n2$ pair blocks $\{(ij,ab)\}_{a,b}$; so $\one\cdot m_n(z)=\kappa_n:=n+\binom n2$. Let
+$Q_n=\operatorname{conv}\{m_n(z)\}$. In the coordinates $x_i=m_{i,1}$, $X_{ij}=m_{ij,11}$ one has
+$m_{i,0}=1-x_i$, $m_{ij,10}=x_i-X_{ij}$, $m_{ij,01}=x_j-X_{ij}$, $m_{ij,00}=1-x_i-x_j+X_{ij}$; so $Q_n$ is affinely
+isomorphic to the correlation polytope $\COR(n)=\operatorname{conv}\{(z_i,z_iz_j)\}$, and $\xc(Q_n)=\xc(\COR(n))$.
+
+\begin{proof}[Proof of Corollary \ref{cor:np}]
+Let $G$ be a graph on $[n]$. Put all weights equal to $1$ except $w_{ij,00}=w_{ij,11}=5$ for the edges $ij$ of $G$.
+Then $\eta_n(w)=1+\kappa_n+4\,u(G)$, where $u(G)$ is the minimum number of edges of $G$ that are not cut by a
+bipartition of $[n]$, and the instance has polynomial size. Maximum cut is NP-hard already for unweighted graphs \cite{GJS}; the
+weighted problem is in Karp's list \cite{Karp}.
+\end{proof}
+
+\section{Exact representations}\label{sec:exact}
+
+We use two standard facts. (i) If a linear function is bounded below on a nonempty polyhedron, its minimum is
+attained. (ii) (\emph{Affine Farkas lemma.}) If $P_0=\{y:Gy\ge g,\ G'y=g'\}$ is nonempty and the affine function
+$\ell$ is nonnegative on $P_0$, then $\ell=\lambda_0+\sum_i\lambda_i(G_iy-g_i)$ on $P_0$ for some $\lambda\ge0$; if
+moreover $\ell$ vanishes at a point of $P_0$, then $\lambda_0=0$. A face of a polyhedron is described by the
+inequalities of the polyhedron with some of them turned into equations, so it needs no more inequalities.
+
+\begin{lemma}[values force a face]\label{lem:face}
+Let $Q\subseteq\R^d$ be the convex hull of a nonempty set of $0/1$ vectors with the same coordinate sum $\kappa$. Let
+$(P,a,\pi)$ satisfy $\min_{y\in P}\{a(y)+w\cdot\pi(y)\}=1+\min_{q\in Q}w\cdot q$ for all $w\in\Z^d_{\ge0}$. Then
+$P_0=\{y\in P:a(y)+\one\cdot\pi(y)=1+\kappa\}$ is a nonempty face of $P$ with $a=1$ on $P_0$ and $\pi(P_0)=Q$. In
+particular $\xc(Q)\le\size(P)$.
+\end{lemma}
+\begin{proof}
+The weight $w=0$ gives $a\ge1$ on $P$. Fix $y\in P$ and $w\in\Z^d_{\ge0}$. For every positive integer $\lambda$,
+$a(y)+\lambda w\cdot\pi(y)\ge1+\lambda\min_Qw\cdot q$; dividing by $\lambda$ and letting $\lambda\to\infty$ gives
+$w\cdot\pi(y)\ge\min_Qw\cdot q$. By scaling this holds for rational, and by continuity for all real $w\ge0$. The set
+$Q^\uparrow:=Q+\R^d_{\ge0}$ is closed, convex and upward closed, hence the intersection of the half-spaces
+$\{x:w\cdot x\ge\min_Qw\cdot q\}$, $w\ge0$. So $\pi(P)\subseteq Q^\uparrow$, and in particular $\one\cdot\pi\ge\kappa$
+on $P$.
+
+Let $q$ be a vertex of $Q$ and $w_q=2\cdot\one-q$. For $p\in Q$ we have $w_q\cdot p=2\kappa-q\cdot p\ge\kappa$, with
+equality only for $p=q$ (as $0\le p\le\one$ and $\one\cdot p=\kappa$); since $w_q>0$, $q$ is the unique minimiser of
+$w_q$ over $Q^\uparrow$. Let $y_q$ minimise $a+w_q\cdot\pi$ over $P$; the value is $1+\kappa$, while $a(y_q)\ge1$ and
+$w_q\cdot\pi(y_q)\ge\kappa$. Hence $a(y_q)=1$ and $\pi(y_q)=q$.
+
+The weight $w=\one$ shows that $a+\one\cdot\pi\ge1+\kappa$ is valid on $P$, so $P_0$ is a face; it contains every
+$y_q$. On $P_0$ both $a\ge1$ and $\one\cdot\pi\ge\kappa$ are tight, so $a=1$, and $\pi(y)\in Q^\uparrow$ with
+coordinate sum $\kappa$ lies in $Q$. Thus $\pi(P_0)\subseteq Q$ is convex and contains all vertices of $Q$.
+\end{proof}
+
+\begin{proof}[Proof of Theorem \ref{thm:exact}]
+By \eqref{eq:eta} and Lemma~\ref{lem:face} with $Q=Q_n$, every representation has size at least
+$\xc(Q_n)=\xc(\COR(n))$. Conversely, if $Q_n=\pi(P)$ for a polyhedron $P$, then $(P,1,\pi)$ is a representation.
+The bounds $1.5^n\le\xc(\COR(n))\le2^n$ are \cite{KW} and the simplex of distributions on $\{0,1\}^n$.
+\end{proof}
+
+\begin{proof}[Proof of Corollary \ref{cor:tw}]
+The instance is that of Section~\ref{sec:diamond} with the interactions $(d_{i,a},d_{j,b})$ kept only for
+$ij\in E(G)$. It has $3n+1$ vertices, $4n$ arcs and $4|E(G)|$ interactions, hence $N_G=7n+1+16|E(G)|$, and
+Theorem~\ref{thm:adapter} gives \textup{(C1)--(C4)} and $\eta_G(w)=1+\min_zw\cdot m_G(z)$, where $m_G(z)$ consists
+of the singleton blocks of $m_n(z)$ and of its pair blocks for $ij\in E(G)$. The vectors $m_G(z)$ are $0/1$ vectors
+with coordinate sum $n+|E(G)|$, and $Q_G=\operatorname{conv}\{m_G(z)\}$ is affinely isomorphic to $\COR(G)$ by the
+change of coordinates of Section~\ref{sec:diamond}. Lemma~\ref{lem:face} with $Q=Q_G$ and the converse argument in
+the proof of Theorem~\ref{thm:exact} give the first statement. The bounds in terms of the treewidth are Theorems~1
+and~3 of \cite{AFHMS}. For the last statement, the stable set polytope of $G$ is, after deleting these zero coordinates, the face of
+$\COR(G)$ on which all coordinates $z_iz_j$, $ij\in E(G)$, vanish, so $\xc(\COR(G))$ is at least the extension complexity of the stable set
+polytope; by \cite[Theorem~1]{GJW} this is $2^{\Omega(n/\log n)}$ for an explicit family of $n$-vertex graphs of
+bounded degree, for which $|E(G)|=O(n)$ and hence $N_G=\Theta(n)$.
+\end{proof}
+
+\subsection*{Bounded weights}
+A set $R$ of pairs $(S,T)$ of disjoint subsets of $[n]$ is \emph{valid} if $|S\cap T'|\ne1$ for all
+$(S,T),(S',T')\in R$. Kaibel and Weltge prove \cite[proof of Theorem~1]{KW}: \emph{the set of all pairs of disjoint
+subsets of $[n]$ cannot be covered by fewer than $1.5^n$ valid sets.}
+
+\begin{proof}[Proof of Theorem \ref{thm:bounded}]
+Write $h(w)=\min_{Q_n}w\cdot q$ and $\kappa=\kappa_n$. Since $\one\cdot q=\kappa$ on $Q_n$, we have
+$\eta_n(w+\one)=1+\kappa+h(w)$. So if $(P,a,\pi)$ represents $\eta_n$ on $\{1,\dots,5\}^d$, then
+$(P,\,a+\one\cdot\pi-\kappa,\,\pi)$ has value $1+h(w)$ for all $w\in\{0,\dots,4\}^d$. Renaming, assume
+\begin{equation}\label{eq:rep04}
+ \min_{y\in P}\{a(y)+w\cdot\pi(y)\}=1+h(w)\qquad(w\in\{0,1,2,3,4\}^d).
+\end{equation}
+
+\emph{Step 1: exact lifts.} From $w=0$ and $w=\one$: $a\ge1$ and $a+\one\cdot\pi\ge1+\kappa$ on $P$. Let $q$ be a
+vertex of $Q_n$, $w_q=2\cdot\one-q$, and let $y_q$ minimise $a+w_q\cdot\pi$, so $a(y_q)+w_q\cdot\pi(y_q)=1+\kappa$.
+Put $\tau=a(y_q)-1\ge0$. The weight $2w_q$ is allowed and $h(2w_q)=2\kappa$, so
+$1+\tau+2(\kappa-\tau)\ge1+2\kappa$, that is $\tau=0$. A unit vector as weight gives $a+\pi_c\ge1$ for every
+coordinate $c$, and the indicator of a block $B$ gives $a+\sum_{c\in B}\pi_c\ge2$. At $y_q$, where $a=1$: $\pi\ge0$
+and every block sum is at least $1$. As $w_q$ equals $1$ on the support of $q$ and $2$ elsewhere,
+$\kappa=w_q\cdot\pi(y_q)=\sum_B\sum_{c\in B}\pi_c(y_q)+\sum_{c\notin\operatorname{supp}q}\pi_c(y_q)\ge\kappa$, which
+forces $\pi(y_q)=q$.
+
+\emph{Step 2: a face.} $P_0=\{y\in P:2a(y)+\one\cdot\pi(y)=2+\kappa\}$ is a face of $P$ containing all $y_q$. On
+$P_0$: $a=1$, $\one\cdot\pi=\kappa$, $\pi\ge0$, and every block sum equals $1$.
+
+\emph{Step 3: a slack matrix.} For $\emptyset\ne S\subseteq[n]$ let $w_S$ have coefficient $1$ at $(i,0)$ for
+$i\in S$, $2$ at $(ij,11)$ for $i<j$ in $S$, and $0$ elsewhere. For $T\subseteq[n]$, $q_T=m_n(\one_T)$ and
+$k=|S\cap T|$,
+\[
+ w_S\cdot q_T=(|S|-k)+k(k-1)=|S|-1+(k-1)^2,\qquad h(w_S)=|S|-1 .
+\]
+Hence $\ell_S:=w_S\cdot\pi-(|S|-1)$ is nonnegative on $P_0$, and $\ell_S(y_T)=(|S\cap T|-1)^2$ where $y_T=y_{q_T}$.
+Let $s_1,\dots,s_r$ be the slacks of the inequalities of $P_0$; $r\le\size(P)$. Since $\ell_S$ vanishes at some
+$y_T$, the affine Farkas lemma gives $\ell_S=\sum_i\lambda_{S,i}s_i$ on $P_0$ with $\lambda_{S,i}\ge0$. Likewise each
+coordinate function $\pi_c\ge0$ vanishes at some $y_T$, so $1=\kappa^{-1}\sum_c\pi_c$ is a nonnegative combination
+$\sum_i\lambda_{\emptyset,i}s_i$ on $P_0$. Therefore the matrix $M_{S,T}=(|S\cap T|-1)^2$, $S,T\subseteq[n]$, equals
+$\sum_{i=1}^r\lambda_{S,i}\,s_i(y_T)$.
+
+\emph{Step 4: covering.} Let $R_i$ be the set of disjoint pairs $(S,T)$ with $\lambda_{S,i}s_i(y_T)>0$. If
+$(S,T),(S',T')\in R_i$ then $\lambda_{S,i}s_i(y_{T'})>0$, so $M_{S,T'}>0$ and $|S\cap T'|\ne1$: $R_i$ is valid. Every
+disjoint pair has $M_{S,T}=1$ and lies in some $R_i$. By the result quoted above, $r\ge1.5^n$.
+\end{proof}
+
+\begin{remark}\label{rem:letters}
+The proof uses only the weight values $0,1,2,4$, so the theorem holds for the alphabet $\{1,2,3,5\}$.
+\end{remark}
+
+\begin{remark}[weights in the right-hand side]\label{rem:rhs}
+Let $A,A',B,B'$ be matrices and $b,b',c$ vectors, and suppose
+$\eta(w)=\max\{c\cdot x:\ Ax\le b+Bw,\ A'x=b'+B'w\}$ for all $w\in W$, with $m$ inequality rows. By
+linear programming duality $\eta(w)=\min\{(b+Bw)\cdot u+(b'+B'w)\cdot v:\ A^{\top}u+A'^{\top}v=c,\ u\ge0\}$, and
+this is a weight-affine LP representation with $m$ inequalities. Hence Theorems
+\ref{thm:exact}--\ref{thm:abs} hold with the same bounds for maximisation programs in which $w$ enters only the
+right-hand side. Conversely, the dual of a weight-affine LP is a maximisation program in which $w$ occurs only in
+the right-hand side and in an additive affine term. A minimisation program with $w$ only in the right-hand side has
+a convex value function and therefore cannot represent $\eta_n$ on any set $W$ that contains, for one singleton
+block, the weights $(1,3),(2,2),(3,1)$ with all other weights equal to $1$, in particular on the sets $W$ of
+Theorems \ref{thm:exact}--\ref{thm:abs}: the values there are $v,v+1,v$. On a two-letter alphabet this obstruction
+disappears.
+\end{remark}
+
+\begin{proof}[Proof of Proposition \ref{prop:upper}]
+Let $e=(r,c)$. For fixed $\theta$, the minimum of $C(\theta)\cdot X$ over $X\in\cA_N$ with $X_e=1$ is $C_e(\theta)$ plus
+the value of the assignment problem on the rows other than $r$ and the columns other than $c$, which by duality
+equals $\max\{\sum_{i\ne r}u_i+\sum_{j\ne c}v_j:\ u_i+v_j\le C_{ij}(\theta)\text{ for }i\ne r,\ j\ne c\}$. Hence
+\[
+ \max_{\theta\in\Theta}h_e(\theta)=\max\Bigl\{C_e(\theta)-C(\theta)\cdot F+\sum_{i\ne r}u_i+\sum_{j\ne c}v_j:\
+ u_i+v_j\le C_{ij}(\theta)\ (i\ne r,\ j\ne c),\ \theta\in\Theta\Bigr\},
+\]
+a linear program in $(\theta,u,v)$, because $C$ is affine. For the instances of Theorem~\ref{thm:adapter}, the
+theorem says that $h_e(\theta)-\varrho$ is the length of a shortest $s$--$t$ path of $D$ for the arc lengths
+$\ell_a(\theta)\ge0$, which is $\max\{\pi_t-\pi_s:\pi_y-\pi_x\le\ell_a(\theta)\text{ for every arc }a=(x,y)\}$;
+maximising over $\theta$ as well gives the displayed program, which has $|A|+2|J|$ inequalities. In the family
+\eqref{eq:eta} there are $4n$ arcs and $2n(n-1)$ interactions, and the weights occur only in the right-hand sides
+($\alpha$ and $\beta$ are coordinates of $w$). By Remark~\ref{rem:rhs} the maximum has a weight-affine LP
+representation with $4n+4n(n-1)=4n^2$ inequalities.
+\end{proof}
+
+\section{Fixed additive error}\label{sec:abs}
+
+We use the following lemma \cite[Lemma~4]{BFPS}. Let $u\equiv3\pmod4$, $\ell=(u+1)/4$, and let $\mathcal D$ and
+$\mathcal U$ be the sets of pairs of $\ell$-subsets of $[u]$ with intersection of size $0$ and $1$. \emph{For all
+nonnegative functions $\phi,\psi$ on subsets of $[u]$, $X(S,T):=\phi(S)\psi(T)$, and $0<\xi<1$,}
+\begin{equation}\label{eq:bfps}
+ (1-\xi)\,\E[X\mid\mathcal D]-\E[X\mid\mathcal U]\ \le\ \|X\!\restriction\!(\mathcal D\cup\mathcal U)\|_\infty\;
+   2^{-\frac{\xi^2}{16\ln2}\ell+O(\log\ell)},
+\end{equation}
+\emph{with an absolute constant in $O(\log\ell)$; expectations are uniform over $\mathcal D$ and $\mathcal U$.}
+
+\begin{proposition}\label{prop:small}
+Let $n\ge3$ and let $(P,a,\pi)$ have value function $g$ with $|g(w)-\eta_n(w)|\le\frac1{40}$ on
+$\{1,\dots,5\}^{d_n}$. Then $\size(P)\ge
+2^{\ell/(64\ln2)-O(\log(\ell+1))}$ with $\ell=\lfloor(n+1)/4\rfloor$.
+\end{proposition}
+\begin{proof}
+As in the proof of Theorem~\ref{thm:bounded}, replacing $a$ by $b:=a+\one\cdot\pi-\kappa-\frac1{40}$ we get, with
+$\gamma=\frac1{20}$ and $f(w):=\min_P\{b+w\cdot\pi\}$,
+\begin{equation}\label{eq:sandwich}
+ 1+h(w)-\gamma\le f(w)\le1+h(w)\qquad(w\in\{0,\dots,4\}^d).
+\end{equation}
+
+\emph{Approximate lifts.} Let $q$ be a vertex of $Q_n$ and $c_q=3\cdot\one-2q$, so $h(c_q)=\kappa$. Let $y_q$ minimise
+$b+c_q\cdot\pi$ and write $b(y_q)+c_q\cdot\pi(y_q)=1+\kappa-s_q$ with $0\le s_q\le\gamma$. For a sign vector
+$\sigma\in\{\pm1\}^d$ the weight $c_q+\sigma$ is allowed; in each block the coordinate of $q$ costs at most $2$ and
+the others at least $2$, so $h(c_q+\sigma)=\kappa+\sigma\cdot q$. The lower bound in \eqref{eq:sandwich} at
+$c_q+\sigma$, evaluated at $y_q$, gives $\sigma\cdot\zeta_q\ge s_q-\gamma$ for $\zeta_q:=\pi(y_q)-q$. Choosing
+$\sigma$ opposite to the signs of $\zeta_q$,
+\begin{equation}\label{eq:lift}
+ \|\pi(y_q)-q\|_1\le\gamma-s_q,\qquad b(y_q)-1=-s_q-c_q\cdot\zeta_q .
+\end{equation}
+
+\emph{A perturbed matrix.} With $w_S$ as before, $L_S:=b+w_S\cdot\pi-|S|+\gamma$ is nonnegative on $P$ by
+\eqref{eq:sandwich}. Put $M'_{S,T}=L_S(y_T)$. By \eqref{eq:lift}, writing
+$s_T,\zeta_T$ for $s_{q_T},\zeta_{q_T}$ and $v_T=\gamma-s_T\in[0,\gamma]$,
+\[
+ M'_{S,T}=(|S\cap T|-1)^2+v_T+(w_S-c_{q_T})\cdot\zeta_T,\qquad |(w_S-c_{q_T})\cdot\zeta_T|\le3v_T .
+\]
+So $1-2\gamma\le M'_{S,T}\le1+4\gamma$ if $S\cap T=\emptyset$ and $0\le M'_{S,T}\le4\gamma$ if $|S\cap T|=1$. By the
+affine Farkas lemma each $L_S$ is a nonnegative combination of the $r=\size(P)$ slacks of $P$ and the constant $1$;
+hence $M'$ is a sum of $r+1$ functions of the form $\phi(S)\psi(T)\ge0$, each pointwise at most $M'$.
+
+\emph{Corruption.} Restrict to $\ell$-subsets of $[u]$, $u=4\ell-1\le n$, and apply \eqref{eq:bfps} with
+$\xi=\frac12$ to each of the $r+1$ terms; on $\mathcal D\cup\mathcal U$ each is at most $1+4\gamma=\frac65$. Summing,
+$\frac14=\frac12(1-2\gamma)-4\gamma\le\frac12\E[M'\mid\mathcal D]-\E[M'\mid\mathcal U]\le(r+1)\,\frac65\,2^{-\ell/(64\ln2)+O(\log\ell)}$.
+Finally $r\ge1$: a program without inequalities has an affine value function, and $\eta_n$ is not within
+$\frac1{40}$ of an affine function (let one singleton block run through $(1,3),(2,2),(3,1)$ with all other weights
+equal to $1$; the values are $v,v+1,v$). So $r+1\le2r$, and the constants are absorbed in $O(\log(\ell+1))$.
+\end{proof}
+
+\begin{proof}[Proof of Theorem \ref{thm:abs}]
+Split $\nu m$ of the $n$ variables into $\nu$ groups of size $m$. For $w\in\{1,\dots,5\}^{d_m}$ let $W(w)\in
+\{1,\dots,5\}^{d_n}$ copy $w$ inside each group and equal $1$ on all other blocks; there are $K=\kappa_n-\nu\kappa_m$
+such blocks, each contributing exactly $1$. Then $\eta_n(W(w))=\nu\,\eta_m(w)+K+1-\nu$. Since $W$ is affine,
+$\hat g(w):=(g(W(w))-K-1+\nu)/\nu$ is the value of a weight-affine LP on the same polyhedron, with error at most
+$\Delta/\nu\le\frac1{40}$. Apply Proposition~\ref{prop:small} with $m$ in place of $n$.
+\end{proof}
+
+\section{Fixed relative error}\label{sec:rel}
+
+\begin{proof}[Proof of Theorem \ref{thm:rel}]
+\emph{The linear program.} Let $r=t+1$. Variables are numbers $\mu_S(x_S)$ for $S\subseteq[n]$, $|S|\le r$,
+$x_S\in\{0,1\}^S$, subject to the equations $\sum_{x_S}\mu_S(x_S)=1$ and $\mu_S=$ marginal of $\mu_{S'}$ for
+$S\subseteq S'$, and to the inequalities $\mu_S(x_S)\ge0$ for $|S|=r$ (nonnegativity for smaller $S$ follows). There
+are $2^r\binom nr$ inequalities. Let $L_t(w)=1+\min_\mu\bigl[\sum_{i,a}w_{i,a}\mu_i(a)+\sum_{i<j,a,b}w_{ij,ab}\mu_{ij}(a,b)\bigr]$.
+Every $z$ gives a feasible point, so $L_t\le\eta_n$; and as each block of marginals is a probability vector and
+$w\ge1$, $L_t\ge1+\kappa_n$.
+
+\emph{Entropy.} Fix a feasible $\mu$. For a tuple $S$ of at most $t$ indices (repetitions allowed) and an index $i$,
+the conditional entropy $\Ent(X_i\mid X_S)$ is computed in the local distribution on the set of indices involved; so
+is the conditional mutual information $\MI(X_i;X_j\mid X_S)$ when $S$ has at most $t-1$ entries. In both cases at
+most $t+1$ indices are involved, and consistency makes this well defined. For $0\le s\le t$ let $H_s=\E\,\Ent(X_i\mid X_{S})$, where $S$ is a uniform $s$-tuple and $i$ a uniform
+index, independent. The chain rule gives $H_s-H_{s+1}=\E\,\MI(X_i;X_j\mid X_S)$ for $s<t$, and
+$0\le H_t\le H_0\le\ln2$. Hence for some $s<t$,
+\begin{equation}\label{eq:mi}
+ \E_{S,i,j}\,\MI(X_i;X_j\mid X_S)\le\frac{\ln2}{t}.
+\end{equation}
+
+\emph{Rounding.} For this $s$ draw $S$, then $x_S$ from $\mu_S$, and then draw all $Z_i$ independently from the
+conditional laws $p_i$ of $X_i$ given $X_S=x_S$. For $i\ne j$ let $p_{ij}$ be the conditional law of $(X_i,X_j)$. By
+Pinsker's inequality $\TV(p_{ij},p_i\otimes p_j)\le\sqrt{\MI(X_i;X_j\mid X_S=x_S)/2}$. A pair block costs between
+$1$ and $5$, so replacing $p_{ij}$ by $p_i\otimes p_j$ changes its expected cost by at most $4\TV$. Averaging over
+the seed, summing over pairs and using the Cauchy--Schwarz inequality with \eqref{eq:mi},
+\[
+ \E\sum_{i<j}4\,\TV(p_{ij},p_i\otimes p_j)\le2n^2\sqrt{\frac{\ln2}{2t}}=n^2\sqrt{\frac{2\ln2}{t}} .
+\]
+Averaging the conditional laws $p_i$, $p_{ij}$ over the seed returns $\mu_i$, $\mu_{ij}$. So the expected cost of
+$Z$ is at most the objective value of $\mu$ plus the last bound, and some $z$ is at least as good. Applying this to
+an optimal $\mu$ proves the first display. Since $1+\kappa_n\ge n^2/2$, the additive error is at most
+$\sqrt{8\ln2/t}\,L_t$, and $t=\lceil8\ln2/\varepsilon^2\rceil$ gives the second statement.
+\end{proof}
+
+\begin{remark}
+The pair-local relaxation $(t=1)$ is not exact: with all weights $1$ except $5$ on equal pair states, its value is
+$1+\kappa_n$, while $\eta_n=1+\kappa_n+n^2-2n$ for even $n\ge4$. The size bound of Theorem~\ref{thm:rel} is below $2^n$
+only for fairly large $n$ (from $n=27$ for $\varepsilon=1$).
+\end{remark}
+
+\section{Formal verification and reproducibility}\label{sec:formal}
+A Lean~4 project (Lean 4.19.0, Mathlib commit \code{c44e0c8e}, both pinned in the project; one check command; a
+recorded clean-room run) accompanies the paper. It contains twelve modules, $3907$ lines. No \code{sorry} occurs, and
+the $57$ reported theorems depend only on Lean's three standard axioms.
+
+\emph{Theorem~\ref{thm:adapter} is machine-checked.} The theorem \code{exact\_adapter} assumes finite sets $V$,
+$A$, $J$, maps giving the tail and head of every arc and the two arcs of every interaction, $s\ne t$, a rank
+function increasing along every arc, at least one $s$--$t$ path, $\alpha\ge0$, $\beta\ge0$, $\varrho>0$ and
+\eqref{eq:Gamma}. It concludes, for the cost matrix of Section~\ref{sec:adapter} defined on all ordered pairs of
+vertices:
+\begin{itemize}
+\item the dimension is $|V|+|A|+4|J|$;
+\item \textup{(C2)}: $C(\theta)=C(0)+\sum_j\theta_j\,(E_{f_jf_j'}+E_{g_jg_j})$ for every real $\theta$, where $E_{uv}$
+  is the matrix unit; \textup{(C3)}: the $2|J|$ entries $(f_j,f_j')$, $(g_j,g_j)$ lie in pairwise different rows and
+  pairwise different columns;
+\item for every $\theta\in\Theta$: \textup{(C4)}; the dual certificate of Lemma~\ref{lem:dual}; and
+  $C(\theta)\cdot X>C(\theta)\cdot F$ for every doubly stochastic $X\ne F$;
+\item for every $\theta\in\Theta$: the set of values $C(\theta)\cdot(X-F)$ over the doubly stochastic $X$ with $X_e=1$
+  and the set of numbers $\varrho+\sum_{a\in P}\alpha_a+\sum_j(\theta_j[a_j\in P]+(\beta_j-\theta_j)[b_j\in P])$ over the
+  $s$--$t$ paths $P$ of $D$ have least elements, and these are equal;
+\item the set of values $C(\theta)\cdot(X-F)$ over all $\theta\in\Theta$ and all such $X$, and the set of numbers
+  $\varrho+Q(P)$, have least elements, and these are equal.
+\end{itemize}
+Paths of $D$ are lists of arcs, so parallel arcs are allowed. The proof follows Section~\ref{sec:adapter}:
+permutations supported on designated entries (Lemma~\ref{lem:perm}), forced traversal of whole chains, the cost
+identity of Lemma~\ref{lem:cost} for every real $\theta$, Lemmas \ref{lem:compl} and \ref{lem:dual}, and the
+passage from permutations to doubly stochastic matrices by the Birkhoff--von Neumann theorem, which is taken from
+Mathlib. Separate theorems state that the correspondence $P\mapsto\sigma_P$ of Lemmas \ref{lem:paths} and
+\ref{lem:perm} is a bijection (for every $s$--$t$ path of $D$ there is exactly one permutation supported on
+designated entries, through $e$, that traverses exactly the chains of its arcs, and conversely), and that the dual
+prices are $\lambda_x=\sum_j\theta_j[x=g_j]$, hence linear in $\theta$. Two qualifications. First,
+Lemma~\ref{lem:paths} is not formalised as written: Lean has no statement on $s$--$t$ paths of $D'$. It states the
+bijection between the paths of $D$ and the permutations directly, and that such a permutation enters a chain if
+and only if it moves all its new vertices. For new vertices, `at most one' entering and leaving arc is a Lean
+statement; `exactly one' is not. Secondly, the agreement of the Lean definitions with the construction of
+Section~\ref{sec:adapter} was checked by reading them against the text and has not been reviewed externally. What
+is trusted is Lean's kernel, the three axioms, and Mathlib as distributed: the kernel replay covers the twelve
+modules, not Mathlib.
+
+\emph{Also formalised}, in the module \code{CorrelationCoverKernel}: the covering inequality of Kaibel and Weltge
+\cite{KW} in the language of words over a three-letter alphabet (a valid family has at most $2^n$ members, hence
+$r$ valid families covering all $3^n$ words satisfy $3^n\le r\,2^n$). This is a formalisation of a known argument.
+
+\emph{Not formalised:} the diamond family of Section~\ref{sec:diamond}; Propositions \ref{prop:indep} and
+\ref{prop:upper}; Corollaries \ref{cor:np}, \ref{cor:inapx} and \ref{cor:tw}; Lemma~\ref{lem:face}, the passage
+from a linear program to a covering, and Theorems \ref{thm:exact}--\ref{thm:rel}.
+
+\begin{sloppypar}
+The Lean project and the scripts of the computations described in the introduction are in the package
+accompanying this paper: the directory \code{forced-entry-costs} of the repository
+\url{https://github.com/kosza123/flow-certificate-thresholds}, and the Zenodo record of this paper.
+\end{sloppypar}
+
+\section{Open questions}
+\textup{(1)} The trade-off between additive error and size between the regimes of Theorems \ref{thm:abs} and
+\ref{thm:rel}. \textup{(2)}
+Whether the bound $2^{\Omega(N/\log N)}$ of Corollary~\ref{cor:tw} can be improved to $2^{\Omega(N)}$; this would
+follow from \cite[Conjecture~2]{AFHMS} or from the conjecture of \cite{GJW}. \textup{(3)} Linear
+programs in which the weights enter the constraint matrix, or the objective and the right-hand side together; the
+right-hand side alone is covered by Remark~\ref{rem:rhs}. \textup{(4)} Theorem~\ref{thm:bounded} for an alphabet of
+three letters.
+
+\section*{Author contributions and use of AI}
+This work was carried out with substantial assistance from AI systems working under the author's direction. The
+SAPIO MORPHEUS project uses models from OpenAI and Anthropic.
+\begin{itemize}
+\item The construction, the theorems on linear programs, their first complete proofs and three of the Lean modules
+  were produced by an AI operator of the project based on OpenAI models, with its own checking agents.
+\item The independent reviews of the proofs and of this text with separate code, the literature comparison,
+  Propositions \ref{prop:indep} and \ref{prop:upper}, Corollaries \ref{cor:np}, \ref{cor:inapx} and
+  \ref{cor:tw}, Remark~\ref{rem:rhs}, the restructuring and this manuscript, the Lean formalisation of
+  Theorem~\ref{thm:adapter} built on those three modules, and the Lean project with its clean-room record
+  were produced by AI agents based on Anthropic's Claude.
+\item The author selected the problem and the direction, set the standards of rigour, made the decisions, and takes
+  responsibility for the content.
+\end{itemize}
+In line with common publication policies, AI systems are not listed as authors.
+
+\begin{thebibliography}{99}
+\bibitem{AFHMS} P.~Aboulker, S.~Fiorini, T.~Huynh, M.~Macchia, J.~Seif, \emph{Extension complexity of the correlation
+  polytope}, Oper.\ Res.\ Lett.\ \textbf{47} (2019), 47--51; arXiv:1806.00541v2.
+\bibitem{ABV} H.~Aissi, C.~Bazgan, D.~Vanderpooten, \emph{Complexity of the min-max and min-max regret assignment
+  problems}, Oper.\ Res.\ Lett.\ \textbf{33} (2005), 634--640.
+\bibitem{ABTW} D.~Avis, D.~Bremner, H.~R.~Tiwary, O.~Watanabe, \emph{Polynomial size linear programs for problems in
+  P}, Discrete Appl.\ Math.\ \textbf{265} (2019), 22--39; arXiv:1408.0807.
+\bibitem{BHKL} A.~E.~Black, C.~Hertrich, S.~Kober, G.~Loho, \emph{Two linear programs are better than one},
+  arXiv:2610.15909 (2026).
+\bibitem{BFPS} G.~Braun, S.~Fiorini, S.~Pokutta, D.~Steurer, \emph{Approximation limits of linear programs (beyond
+  hierarchies)}, Math.\ Oper.\ Res.\ \textbf{40} (2015), 756--772; arXiv:1204.0957v3.
+\bibitem{BP13} G.~Braun, S.~Pokutta, \emph{Common information and unique disjointness}, Algorithmica \textbf{76}
+  (2016), 597--629.
+\bibitem{BPmatching} G.~Braun, S.~Pokutta, \emph{The matching polytope does not admit fully-polynomial size
+  relaxation schemes}, in: Proc.\ SODA 2015, 837--846; arXiv:1403.6710.
+\bibitem{BPZ} G.~Braun, S.~Pokutta, D.~Zink, \emph{Affine reductions for LPs and SDPs}, Math.\ Program.\
+  \textbf{173} (2019), 281--312; arXiv:1410.8816.
+\bibitem{BM} M.~Braverman, A.~Moitra, \emph{An information complexity approach to extended formulations}, in:
+  Proc.\ STOC 2013, 161--170.
+\bibitem{Cela} E.~\c{C}ela, B.~Klinz, S.~Lendl, G.~J.~Woeginger, L.~Wulf, \emph{A linear time algorithm for
+  linearizing quadratic and higher-order shortest path problems}, Math.\ Program.\ \textbf{210} (2025), 165--188.
+\bibitem{CW} N.~Chakravarti, A.~P.~M.~Wagelmans, \emph{Calculation of stability radii for combinatorial optimization
+  problems}, Oper.\ Res.\ Lett.\ \textbf{23} (1998), 1--7.
+\bibitem{CLRS} S.~O.~Chan, J.~R.~Lee, P.~Raghavendra, D.~Steurer, \emph{Approximate constraint satisfaction requires
+  large LP relaxations}, J.\ ACM \textbf{63} (2016), no.~4; arXiv:1309.0563.
+\bibitem{DPSW} A.~Darmann, U.~Pferschy, J.~Schauer, G.~J.~Woeginger, \emph{Paths, trees and matchings under
+  disjunctive constraints}, Discrete Appl.\ Math.\ \textbf{159} (2011), 1726--1735.
+\bibitem{FMPTW} S.~Fiorini, S.~Massar, S.~Pokutta, H.~R.~Tiwary, R.~de~Wolf, \emph{Exponential lower bounds for
+  polytopes in combinatorial optimization}, J.\ ACM \textbf{62} (2015), no.~2, Art.~17; arXiv:1111.0837.
+\bibitem{Fortin} J.~Fortin, P.~Zieli\'nski, D.~Dubois, H.~Fargier, \emph{Criticality analysis of activity networks
+  under interval uncertainty}, J.\ Sched.\ \textbf{13} (2010), 609--627.
+\bibitem{GMO} H.~N.~Gabow, S.~N.~Maheshwari, L.~J.~Osterweil, \emph{On two problems in the generation of program
+  test paths}, IEEE Trans.\ Software Eng.\ \textbf{SE-2} (1976), 227--231.
+\bibitem{GJS} M.~R.~Garey, D.~S.~Johnson, L.~Stockmeyer, \emph{Some simplified NP-complete graph problems},
+  Theoret.\ Comput.\ Sci.\ \textbf{1} (1976), 237--267.
+\bibitem{GW} F.~Glover, E.~Woolsey, \emph{Converting the 0-1 polynomial programming problem to a 0-1 linear
+  program}, Oper.\ Res.\ \textbf{22} (1974), 180--182.
+\bibitem{GJM} B.~Goldengorin, G.~J\"ager, P.~Molitor, \emph{Tolerances applied in combinatorial optimization},
+  J.\ Comput.\ Sci.\ \textbf{2} (2006), 716--734.
+\bibitem{GJW} M.~G\"o\"os, R.~Jain, T.~Watson, \emph{Extension complexity of independent set polytopes}, SIAM J.\
+  Comput.\ \textbf{47} (2018), 241--269; arXiv:1604.07062.
+\bibitem{HL} C.~Hertrich, G.~Loho, \emph{Neural networks and (virtual) extended formulations}, SIAM J.\ Math.\ Data
+  Sci.\ \textbf{8} (2026), 1350--1369; arXiv:2411.03006.
+\bibitem{Hladik11} M.~Hlad\'{\i}k, \emph{Tolerance analysis in linear systems and linear programming}, Optim.\
+  Methods Softw.\ \textbf{26} (2011), 381--396.
+\bibitem{Hladik12} M.~Hlad\'{\i}k, \emph{Complexity of necessary efficiency in interval linear programming and
+  multiobjective linear programming}, Optim.\ Lett.\ \textbf{6} (2012), 893--899.
+\bibitem{Hladik26} M.~Hlad\'{\i}k, \emph{Tolerance analysis in linear programming: searching for lower and upper
+  bounds}, European J.\ Oper.\ Res.\ \textbf{336} (2027), 39--52 (online 2026), doi:10.1016/j.ejor.2026.07.048.
+\bibitem{HM} A.~J.~Hoffman, H.~M.~Markowitz, \emph{A note on shortest path, assignment, and transportation
+  problems}, Naval Res.\ Logist.\ Quart.\ \textbf{10} (1963), 375--379.
+\bibitem{HuSotirov} H.~Hu, R.~Sotirov, \emph{Special cases of the quadratic shortest path problem}, J.\ Comb.\
+  Optim.\ \textbf{35} (2018), 754--777; arXiv:1611.07682.
+\bibitem{JKR} V.~Jain, F.~Koehler, A.~Risteski, \emph{Mean-field approximation, convex hierarchies, and the
+  optimality of correlation rounding: a unified perspective}, in: Proc.\ STOC 2019, 1226--1236; arXiv:1808.07226.
+\bibitem{KW} V.~Kaibel, S.~Weltge, \emph{A short proof that the extension complexity of the correlation polytope
+  grows exponentially}, Discrete Comput.\ Geom.\ \textbf{53} (2015), 397--401; corrected version arXiv:1307.3543v6.
+\bibitem{Karp} R.~M.~Karp, \emph{Reducibility among combinatorial problems}, in: R.~E.~Miller, J.~W.~Thatcher (eds.),
+  Complexity of Computer Computations, Plenum, 1972, 85--103.
+\bibitem{KZ} A.~Kasperski, P.~Zieli\'nski, \emph{Minmax regret approach and optimality evaluation in combinatorial
+  optimization problems with interval and fuzzy weights}, European J.\ Oper.\ Res.\ \textbf{200} (2010), 680--687.
+\bibitem{Kovac} J.~Kov\'a\v{c}, \emph{Complexity of the path avoiding forbidden pairs problem revisited},
+  Discrete Appl.\ Math.\ \textbf{161} (2013), 1506--1512; arXiv:1111.3996.
+\bibitem{LinWen} C.-J.~Lin, U.-P.~Wen, \emph{Sensitivity analysis of the optimal assignment}, European J.\ Oper.\
+  Res.\ \textbf{149} (2003), 35--46.
+\bibitem{MR} P.~Manurangsi, P.~Raghavendra, \emph{A birthday repetition theorem and complexity of approximating
+  dense CSPs}, in: Proc.\ ICALP 2017, LIPIcs \textbf{80}, Art.~78; arXiv:1607.02986.
+\bibitem{MS} R.~Montemanni, D.~H.~Smith, \emph{On solving the shortest paths with exclusive-disjunction arc pairs
+  conflicts}, arXiv:2506.03326 (2025).
+\bibitem{RT} P.~Raghavendra, N.~Tan, \emph{Approximating CSPs with global cardinality constraints using SDP
+  hierarchies}, in: Proc.\ SODA 2012, 373--387; arXiv:1110.1064.
+\bibitem{Rostami} B.~Rostami, A.~Chassein, M.~Hopf, D.~Frey, C.~Buchheim, F.~Malucelli, M.~Goerigk, \emph{The
+  quadratic shortest path problem: complexity, approximability, and solution methods}, European J.\ Oper.\ Res.\
+  \textbf{268} (2018), 473--485.
+\bibitem{SLG} Yu.~N.~Sotskov, V.~K.~Leontev, E.~N.~Gordeev, \emph{Some concepts of stability analysis in
+  combinatorial optimization}, Discrete Appl.\ Math.\ \textbf{58} (1995), 169--190.
+\bibitem{Wendell} R.~E.~Wendell, \emph{The tolerance approach to sensitivity analysis in linear programming},
+  Management Sci.\ \textbf{31} (1985), 564--578.
+\bibitem{Yannakakis} M.~Yannakakis, \emph{Expressing combinatorial optimization problems by linear programs},
+  J.\ Comput.\ System Sci.\ \textbf{43} (1991), 441--466.
+\bibitem{YZ} Y.~Yoshida, Y.~Zhou, \emph{Approximation schemes via Sherali--Adams hierarchy for dense constraint
+  satisfaction problems and assignment problems}, in: Proc.\ ITCS 2014, 423--438.
+\end{thebibliography}
+
+\end{document}

@@ -20,6 +20,16 @@ the Smallest Current in Planar Networks*, and [`twoport/`](twoport/) contains it
 growth constant of the ratio (longest side)/(smallest square) of squared rectangles is at least 1.7194145. See
 [`growth-constant/README.md`](growth-constant/README.md).
 
+## Third note: spanning trees per edge
+
+The directory [`spanning-trees-per-edge/`](spanning-trees-per-edge/) contains a third paper, *Spanning Trees per
+Edge: A Sharp Bound and a Question of Kenyon*, with its verification scripts and a Lean package for the key
+inequality. It proves that every multigraph with `m >= 1` edges has fewer than `(27/8)^(m/2)` spanning trees, with
+the base `sqrt(27/8) = 1.8371...` best possible. Archived on Zenodo, DOI
+[10.5281/zenodo.24504455](https://doi.org/10.5281/zenodo.24504455). The theorem as a whole is not machine-checked
+and has not yet been reviewed by an external expert; see
+[`spanning-trees-per-edge/README.md`](spanning-trees-per-edge/README.md).
+
 ## The statement
 
 Let `G` be a connected planar multigraph with unit resistances. Pick terminals `s`, `t` and an edge `e` that

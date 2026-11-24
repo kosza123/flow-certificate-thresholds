@@ -1,0 +1,89 @@
+CLEAN-ROOM VERIFICATION of the public package
+Package commit verified: f932b49a9c828abf5087cfcf670a472bf1ab8462
+Result: PASS (scripts/check.sh exit 0, 'ALL CHECKS PASSED')
+
+== Procedure
+- Package directory copied (cp -r, no .lake) to a new empty directory outside the repository.
+- MATHLIB_CACHE_DIR set to a new empty directory: the Mathlib cache was downloaded afresh; Mathlib was cloned afresh by lake.
+- Ran ./scripts/check.sh unchanged. No package file was modified; PrintAxioms.lean and check.sh needed no fix.
+- Limitation: same machine; the Lean toolchain binary was reused from the local elan installation (not re-downloaded).
+
+== Versions
+leanprover/lean4:v4.37.0-rc1
+Lean (version 4.37.0-rc1, x86_64-unknown-linux-gnu, commit 0b77e12952ad39077d80d8bd6b66d601f225c321, Release)
+Lake: Lake version 5.0.0-src+0b77e12 (Lean version 4.37.0-rc1)
+elan: elan 4.4.0 (3cc76985a 2026-11-18)
+Mathlib checkout in clean room: 53dad9ed98be8416b6ca1111e55a03de4303231f
+
+== Mathlib cache
+Downloaded: 9139 file(s) [attempted 9139/9139 = 100%, 557 KB/s]
+Decompressed 9139 file(s)
+
+== Build
+Build completed successfully (18329 jobs).
+
+== Forbidden tokens (grep -rnwE 'sorry|admit|axiom' PlanarCore PlanarCore.lean)
+none
+
+== Axioms (lake env lean scripts/PrintAxioms.lean)
+'PlanarCore.theorem1_certified' depends on axioms: [propext, Classical.choice, Quot.sound]
+'PlanarCore.triCert' depends on axioms: [propext, Classical.choice, Quot.sound]
+'PlanarCore.triG_certified_threshold' depends on axioms: [propext, Classical.choice, Quot.sound]
+'PlanarCore.RotCert.H2' depends on axioms: [propext, Classical.choice, Quot.sound]
+'PlanarCore.RotCert.orth' depends on axioms: [propext, Classical.choice, Quot.sound]
+'PlanarCore.RotCert.dual_mul_transpose' depends on axioms: [propext, Classical.choice, Quot.sound]
+'PlanarCore.RotCert.dual_connected' depends on axioms: [propext, Quot.sound]
+'PlanarCore.MGraph.detL_pos' depends on axioms: [propext, Classical.choice, Quot.sound]
+'PlanarCore.MGraph.current_eq_numer_div' depends on axioms: [propext, Classical.choice, Quot.sound]
+'PlanarCore.MGraph.threshold_cramer' depends on axioms: [propext, Classical.choice, Quot.sound]
+'PlanarCore.MGraph.theorem1_networks' depends on axioms: [propext, Classical.choice, Quot.sound]
+'PlanarCore.projA' depends on axioms: [propext, Classical.choice, Quot.sound]
+'PlanarCore.projB' depends on axioms: [propext, Classical.choice, Quot.sound]
+'PlanarCore.MGraph.H1_of_connected' depends on axioms: [propext, Classical.choice, Quot.sound]
+'PlanarCore.MGraph.current_abs_le_one' depends on axioms: [propext, Classical.choice, Quot.sound]
+'PlanarCore.T3_fekete' depends on axioms: [propext, Classical.choice, Quot.sound]
+
+== Kernel replay (lake env leanchecker PlanarCore.<M>; set -e aborts on any nonzero exit)
+PlanarCore.Threshold: ok
+PlanarCore.Projection: ok
+PlanarCore.Assembly: ok
+PlanarCore.Fekete: ok
+PlanarCore.Necessity: ok
+PlanarCore.Graph: ok
+PlanarCore.Theorem1: ok
+PlanarCore.Network: ok
+PlanarCore.Sanity: ok
+PlanarCore.Kirchhoff: ok
+PlanarCore.Certificate: ok
+PlanarCore.Final: ok
+
+== Wall time
+start 2026-11-24T03:02:49Z  end 2026-11-24T03:05:54Z  total 185s (cache get + build + grep + axioms + 12 leanchecker runs)
+
+== Code identity with the verified Stage-4 commit 8f7275d
+All 13 .lean files: identical to the verified development snapshot (commit 8f7275d of the private development repository) after removing comments (block /- -/ and line --) and blank lines.
+lakefile.toml, lake-manifest.json, lean-toolchain: byte-identical to 8f7275d.
+
+== sha256
+361039ebd3b6c21d8431d8cb32d3a996b06ed99dfbd3867d7616ed1b391600ac  PlanarCore.lean
+1149ba623159273e3536fa6a3078fd11d2e3b43c989d89263911dda41b14bae8  PlanarCore/Assembly.lean
+86218bc18270afde63d2e0c3704a29d853142844d90eff328809144eb565fbfa  PlanarCore/Certificate.lean
+c0e23880fb1c1be0973ffa7bd49fdd562d856112f6e030393a84477f2c064521  PlanarCore/Fekete.lean
+b7259b5bbacbc19c952575147e862a1811bc43eb2b2c4be08039132f29ebb354  PlanarCore/Final.lean
+2d8d7eb01309983e7d9d898602217b1d0693a48ebd7c83cc6d86cc26c7bf7754  PlanarCore/Graph.lean
+1767f9650ac4d411b8cd8e0f7536326d53ac6bb4f6b1baaccbfbc69a66de3051  PlanarCore/Kirchhoff.lean
+589573ff29a494c467c04c939d835629fe19e68042389f0c759bc34e95fc2860  PlanarCore/Necessity.lean
+4f75fbcab8548a15d7677bb43b1626e93734cc8fdedff7653211975874f70523  PlanarCore/Network.lean
+9ae2d34c92f67105cb3eb16847b4320da0a316b8cf9a77d2533ee4d8d40372e6  PlanarCore/Projection.lean
+821e765c2c1fd7f74e0fd70daee0338352c08347bd0eb34fe82b37aa30ce3841  PlanarCore/Sanity.lean
+2d92db858524baa0d4478420b6be1f6de71f3cd50f130ec482c12cebc421961f  PlanarCore/Theorem1.lean
+cf203f7dc4360ba5606dc67ba6b2e6c48e4dec8b93f439565f37ec74e3c16c12  PlanarCore/Threshold.lean
+32a97e6fd415550837919e099dd1876d1dbe6b6e830f87338581c59e5df37503  lakefile.toml
+4c42b69441e72d2531f6aea53056f2a3b0ca8eac41ceffcc628a2ef8c2e552fa  lake-manifest.json
+f11739c25d1640e2b3fda8a98af6d64e97d7b2b1c99840535587a9079b3afee7  lean-toolchain
+b3d3d6c1d05dd14bcec6e316adef8288b7ee7757595441d4bc96e11a9d1545ce  scripts/check.sh
+4dd1f7639f794bef62f8a203e401d6b84b5ed09cd2a4ae3d34f1d0d927d5c26d  scripts/PrintAxioms.lean
+
+== Later notes (24 Nov 2026, after this run)
+- The Zenodo record 10.5281/zenodo.24488176 was published after this run; a re-check returned HTTP 200 for https://zenodo.org/records/24488176 and the DOI resolves to it. Its Lean archive is code-identical to this snapshot.
+- scripts/check.sh now pipes the axiom report through scripts/check_axioms.sh, which fails on a missing report or on any axiom outside {propext, Classical.choice, Quot.sound}. Tested on this build: positive case passes (16 declarations); negative cases (injected sorryAx, missing report, a real `sorry` declaration) fail with exit 1.

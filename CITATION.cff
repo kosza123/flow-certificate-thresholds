@@ -1,0 +1,21 @@
+cff-version: 1.2.0
+message: "If you use this work, please cite it as below."
+title: "Machine-Checked Flow-Certificate Thresholds for Planar Graphs Using Rotation-System Certificates"
+version: "1.0.1"
+date-released: "2026-11-24"
+doi: "10.5281/zenodo.24488176"
+license: Apache-2.0
+repository-code: "https://github.com/kosza123/flow-certificate-thresholds"
+authors:
+  - family-names: "Majchrzak"
+    given-names: "Filip"
+    affiliation: "Independent researcher, Poland"
+    orcid: "https://orcid.org/0009-0007-3475-8900"
+keywords:
+  - Lean 4
+  - Mathlib
+  - formal verification
+  - planar graphs
+  - rotation systems
+  - electrical networks
+  - network flows

@@ -4,7 +4,7 @@ Second note of the SAPIO MORPHEUS project by Filip Majchrzak. It lives in this r
 imports one module of the first development (`PlanarCore.Fekete`).
 
 - Paper: [`paper/twoport_growth.pdf`](paper/twoport_growth.pdf), with LaTeX source.
-- Zenodo: DOI 10.5281/zenodo.24497700 (reserved for this note).
+- Zenodo: this note has not been deposited; it is available only in this repository.
 
 ## The result in one paragraph
 
@@ -58,7 +58,7 @@ Expected last line: `ALL CHECKS PASSED`.
 ## Notes on the verification record
 
 `VERIFICATION_CLEANROOM.txt` is the unedited record of the clean-room run. After that run:
-- `verify/verify_gadgets.py` was changed in one line so that it can be started from any directory; its output is
+- `verify/verify_gadgets.py` was changed in two lines so that it can be started from any directory; its output is
   unchanged;
 - the text of the paper was revised after a second review;
 - the Lean sources were not changed.

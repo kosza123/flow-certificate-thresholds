@@ -1,9 +1,0 @@
-structure diamond ok [{'label': 'diamond n=1', 'N': 8, 'V': 4, 'A': 4, 'J': 0, 'paths': 2, 'designated_offdiag': 9}, {'label': 'diamond n=2', 'N': 31, 'V': 7, 'A': 8, 'J': 4, 'paths': 4, 'designated_offdiag': 33}, {'label': 'diamond n=3', 'N': 70, 'V': 10, 'A': 12, 'J': 12, 'paths': 8, 'designated_offdiag': 73}, {'label': 'diamond n=4', 'N': 125, 'V': 13, 'A': 16, 'J': 24, 'paths': 16, 'designated_offdiag': 129}, {'label': 'diamond n=5', 'N': 196, 'V': 16, 'A': 20, 'J': 40, 'paths': 32, 'designated_offdiag': 201}, {'label': 'diamond n=6', 'N': 283, 'V': 19, 'A': 24, 'J': 60, 'paths': 64, 'designated_offdiag': 289}]
-tiny brute force ok [('path2', '0', '13/2'), ('path2', '3', '13/2'), ('path2', '1', '13/2'), ('path2', '5/2', '13/2'), ('par2', '0', '4/3'), ('par2', '4', '1/3'), ('par2', '7/3', '2'), ('path2rev', '0', '3'), ('path2rev', '2', '3'), ('path2rev', '1/2', '3')] 15.834903478622437
-random DAGs ok 60 max N 27 17.01827335357666
-diamond n=2: 252 scenarios ok 17.98630404472351
-diamond n=3: 44 scenarios ok 19.17776083946228
-eta formula n=2: 300 weight vectors, 16 corner scenarios each 22.724515914916992
-eta formula n=3: 40 weight vectors, 4096 corner scenarios each 37.87256646156311
-outside box: {'theta=beta+5 (above box)': {'identity_cost': '24', 'optimum': '24', 'identity_optimal': True}, 'theta=-5 (below box)': {'identity_cost': '-20', 'optimum': '-20', 'identity_optimal': True}}
-ALL ADAPTER CHECKS PASSED 37.87681484222412

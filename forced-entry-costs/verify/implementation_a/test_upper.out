@@ -1,1 +1,0 @@
-upper endpoint ok: {'dags': 40, 'max_abs_diff_lps': 0.0, 'max_abs_diff_exact': 0.0, 'strictly_interior_gain': 2, 'diamond_fixed_polyhedron': {2: {'inequalities': 16, 'weights': 8, 'max_abs_diff': 0.0}, 3: {'inequalities': 36, 'weights': 18, 'max_abs_diff': 0.0}}}

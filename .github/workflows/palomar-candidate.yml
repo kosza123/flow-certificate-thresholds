@@ -1,0 +1,43 @@
+name: Palomar candidate verification
+on:
+  push:
+    branches: ["palomar/kenyon-candidate-20261125"]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  comparator:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - name: Check source layout
+        run: |
+          python3 - <<'PY'
+          import pathlib
+          for p in pathlib.Path('.').rglob('*.lean'):
+              if '.git' in p.parts or '.lake' in p.parts:
+                  continue
+              assert not p.is_symlink(), p
+              s = p.read_text()
+              assert len(s.splitlines()) <= 10000, p
+              assert s.startswith("module\n"), p
+          print("Source-header and line-count checks passed")
+          PY
+      - name: Install Lean using official elan installer
+        run: |
+          set -euo pipefail
+          curl -fsSL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh | sh -s -- -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Prepare bubblewrap
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq bubblewrap
+          sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
+      - name: Build and run independent Comparator
+        run: |
+          set -euo pipefail
+          lean --version
+          bash scripts/verify-comparator.sh

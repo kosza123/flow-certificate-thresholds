@@ -1,5 +1,0 @@
-algebraic identities ok (n<=6) 0.008955717086791992
-KW rectangle lemma brute force: {1: {'max_disjoint_pairs_in_valid_rectangle': 2, 'bound': 2, 'disjoint_pairs': 3}, 2: {'max_disjoint_pairs_in_valid_rectangle': 4, 'bound': 4, 'disjoint_pairs': 9}, 3: {'max_disjoint_pairs_in_valid_rectangle': 8, 'bound': 8, 'disjoint_pairs': 27}, 4: {'max_disjoint_pairs_in_valid_rectangle': 16, 'bound': 16, 'disjoint_pairs': 81}} 0.2356257438659668
-n=2 universal set: {'min a over U': 1.0, 'max deviation of (a,pi) from (1,q) on the w_q-optimal faces': np.float64(4.440892098500626e-16), 'P0: max deviation of a and block sums from 1': 4.440892098500626e-16, 'P0: min coordinate of pi': 0.0, 'P0 (n=2): max violation of marginal consistency': 0.0} 255.6964099407196
-alphabet {0,1,2}: max a on the w_q-face: status 3: The problem is unbounded. (HiGHS Status 10: model_status is Unbounded; primal_status is None)
-ALL PART-B CHECKS PASSED 255.78418517112732

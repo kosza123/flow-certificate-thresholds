@@ -1,0 +1,21 @@
+{
+  "challenge_module": "Challenge",
+  "solution_module": "Solution",
+  "theorem_names": [
+    "PalomarKenyon.kenyon_bound",
+    "PalomarKenyon.kenyon_bound_real",
+    "PalomarKenyon.kenyon_sharp"
+  ],
+  "definition_names": [
+    "PalomarKenyon.Adj",
+    "PalomarKenyon.Conn",
+    "PalomarKenyon.IsTree",
+    "PalomarKenyon.numTrees"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Quot.sound",
+    "Classical.choice"
+  ],
+  "enable_nanoda": true
+}

@@ -1,21 +1,52 @@
-import PlanarCore
+module
 
-/-! Prints the axioms used by the main declarations.  Expected output for each:
-`[propext, Classical.choice, Quot.sound]` (or a subset of these). -/
+public import Kenyon
 
-#print axioms PlanarCore.theorem1_certified
-#print axioms PlanarCore.triCert
-#print axioms PlanarCore.triG_certified_threshold
-#print axioms PlanarCore.RotCert.H2
-#print axioms PlanarCore.RotCert.orth
-#print axioms PlanarCore.RotCert.dual_mul_transpose
-#print axioms PlanarCore.RotCert.dual_connected
-#print axioms PlanarCore.MGraph.detL_pos
-#print axioms PlanarCore.MGraph.current_eq_numer_div
-#print axioms PlanarCore.MGraph.threshold_cramer
-#print axioms PlanarCore.MGraph.theorem1_networks
-#print axioms PlanarCore.projA
-#print axioms PlanarCore.projB
-#print axioms PlanarCore.MGraph.H1_of_connected
-#print axioms PlanarCore.MGraph.current_abs_le_one
-#print axioms PlanarCore.T3_fekete
+/-! Axiom reports for the theorems of the package. Every report must list only
+`propext`, `Classical.choice`, `Quot.sound` (or a subset). -/
+
+@[expose] public section
+
+-- the final statements
+#print axioms Kenyon.kenyon_bound
+#print axioms Kenyon.kenyon_sharp
+#print axioms Kenyon.kenyon_bound_real
+#print axioms Kenyon.numTrees_sq_le
+#print axioms Kenyon.numTrees_le_pow
+-- the chain
+#print axioms Kenyon.xi_one_le
+#print axioms Kenyon.green_sol
+#print axioms Kenyon.Bfun_mono
+#print axioms Kenyon.Xi_step
+#print axioms Kenyon.det_le_det_mul_exp
+#print axioms Kenyon.det_Kmat_step
+#print axioms Kenyon.det_Kmat_le_exp_Xi
+#print axioms Kenyon.numForests_le_det
+#print axioms Kenyon.det_Kmat_ge
+#print axioms Kenyon.numTrees_le_classC
+#print axioms Kenyon.numTrees_pow_le
+#print axioms Kenyon.numTrees_le_exp_classC
+#print axioms Kenyon.numTreesWith_le_contract
+#print axioms Kenyon.numTreesWithout_le_delete
+#print axioms Kenyon.pendant_step
+-- the sharpness chain
+#print axioms Kenyon.card_le_of_conn
+#print axioms Kenyon.exists_tree_of_forest
+#print axioms Kenyon.numForests_le_numTrees_mul
+#print axioms Kenyon.det_le_numForests
+#print axioms Kenyon.det_redMat_expand
+#print axioms Kenyon.det_Kmat_le_numTrees
+#print axioms Kenyon.Xi_step_reg
+#print axioms Kenyon.Xi_one_reg
+#print axioms Kenyon.Act.green_upper
+#print axioms Kenyon.Act.trace_inv_mul_Amat_le
+#print axioms Kenyon.Act.uW_eq_zero_of_free
+#print axioms Kenyon.sanov
+#print axioms Kenyon.cay_free
+#print axioms Kenyon.cay_conn
+#print axioms Kenyon.det_Kmat_step_rev
+#print axioms Kenyon.Act.logdet_ge
+#print axioms Kenyon.Act.numTrees_ge
+-- examples
+#print axioms Kenyon.numTrees_digon
+#print axioms Kenyon.numTrees_loop

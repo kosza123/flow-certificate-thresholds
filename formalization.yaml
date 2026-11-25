@@ -1,0 +1,98 @@
+version: "v0.4"
+project:
+  name: "Spanning trees per edge: a sharp bound and a question of Kenyon"
+  description: >-
+    For every finite multigraph with m at least one edge, the number of
+    spanning trees tau satisfies tau^2 * 8^m < 27^m. The base sqrt(27/8)
+    is optimal and is never attained. The formalization uses labelled edges
+    with loops and parallel edges permitted and provides a direct sharpness
+    proof using an explicit family of graphs.
+  authors:
+    - "Filip Majchrzak"
+  license: "Apache-2.0"
+  responsible_maintainers:
+    - "Filip Majchrzak"
+classification:
+  arxiv: ["math.CO", "math.LO"]
+  msc2020: ["05C35", "05C05", "03B35"]
+sources:
+  - title: "Spanning Trees per Edge: A Sharp Bound and a Question of Kenyon"
+    authors: ["Filip Majchrzak"]
+    id: "10.5281/zenodo.24523144"
+    type: preprint
+    location: "https://doi.org/10.5281/zenodo.24523144"
+    relationship: formalizes
+    note: "Version 2, Theorem 1 and the sharpness/supremum claim of Corollary 3."
+    author_endorsement: participated
+  - title: "Tiling a rectangle with the fewest squares"
+    authors: ["Richard Kenyon"]
+    type: paper
+    relationship: background
+    location: "Problem 2 (1996)"
+    note: "Problem proposer; no endorsement claimed. Only the general-graph supremum is addressed."
+    author_endorsement: no-response
+related_formalizations:
+  - id: "https://github.com/kosza123/flow-certificate-thresholds/tree/b4c5b60f61766ea11cb7e72cc493181ac06f6c68/spanning-trees-per-edge/lean-kenyon"
+    relationship: builds-on
+    note: "Same substantive proof development, ported to the module system and wrapped for Comparator."
+status:
+  scope: >-
+    Both the universal strict bound and sharpness are formalized in the
+    baseline. The planar optimum, exact fixed-edge extremizers, and the
+    general large-girth limit quoted as Proposition 2 are outside scope.
+    This port is a candidate until compilation and Comparator checks succeed.
+  sorry_count: 0
+  sorry_in_definitions: 0
+  axioms: ["propext", "Classical.choice", "Quot.sound"]
+automation:
+  methods:
+    - method: agent
+      models: ["Anthropic Claude", "OpenAI GPT"]
+      framework: "SAPIO MORPHEUS / COMPLEX"
+      tool_setup: "AI-assisted research, Lean 4, Mathlib and agent coding tools; exact model revisions not tracked here."
+      cost:
+        wall_time: "not tracked"
+        spend_usd: "not tracked"
+        hardware: "agent environments"
+      prompting_notes: "Human direction and verification requirements; independent formalization and checks."
+  spend_usd: "not tracked"
+  notes: >-
+    The human author directed the research and publication decisions.
+    AI agents developed the statements, mathematical proofs, computations,
+    manuscript, and Lean formalization. This Comparator port was prepared
+    with OpenAI GPT assistance. The original formal verification was run by
+    the author-side AI workflow; external expert review and historical
+    priority have not been established. No claim that the COMPLEX architecture
+    improves performance over standard agents is made.
+fidelity:
+  divergences: >-
+    The paper's second proof route is formalized, and sharpness is established
+    via an explicit family instead of proving the full general large-girth
+    sequence proposition. No mathematical statement is intended to change
+    from the published baseline; the port remains to be tested.
+review:
+  status: self-assessed
+  reviewers: ["none"]
+  notes: >-
+    Baseline project logs document successful checking by the original AI
+    workflow. No external human or Palomar verification is claimed.
+    The candidate port has not yet been compiled.
+alignment:
+  namespace: PalomarKenyon
+  statements:
+    - source: "Theorem 1, squared integer form"
+      lean: "PalomarKenyon.kenyon_bound"
+      module: "Solution"
+      status: "proved"
+      note: "Wrapper of Kenyon.kenyon_bound; port verification pending."
+    - source: "Theorem 1, real-valued form"
+      lean: "PalomarKenyon.kenyon_bound_real"
+      module: "Solution"
+      status: "proved"
+      note: "Wrapper of Kenyon.kenyon_bound_real; port verification pending."
+    - source: "Corollary 3, sharpness"
+      lean: "PalomarKenyon.kenyon_sharp"
+      module: "Solution"
+      status: "proved"
+      note: "Wrapper of Kenyon.kenyon_sharp; port verification pending."
+acknowledgements: "Lean, Mathlib, and the mathematical literature cited in the published paper."

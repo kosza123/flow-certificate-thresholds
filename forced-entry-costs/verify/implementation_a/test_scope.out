@@ -1,1 +1,0 @@
-{'theta above box (one theta = beta+5)': {'identity_cost': '6', 'optimum': '5'}, 'theta below box (one theta = -7)': {'identity_cost': '-7', 'optimum': '-9'}, 'tight digraph of supplied dual acyclic (scenarios)': 60, 'constant completion cost Hmax works (n=2 weight vectors)': 30}

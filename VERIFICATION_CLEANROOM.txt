@@ -1,89 +1,134 @@
-CLEAN-ROOM VERIFICATION of the public package
-Package commit verified: f932b49a9c828abf5087cfcf670a472bf1ab8462
-Result: PASS (scripts/check.sh exit 0, 'ALL CHECKS PASSED')
+CLEAN-ROOM VERIFICATION OF THE LEAN PROJECT Kenyon (21 modules) WITH TreeEntropy (8 modules)
+==========================================================================================
 
-== Procedure
-- Package directory copied (cp -r, no .lake) to a new empty directory outside the repository.
-- MATHLIB_CACHE_DIR set to a new empty directory: the Mathlib cache was downloaded afresh; Mathlib was cloned afresh by lake.
-- Ran ./scripts/check.sh unchanged. No package file was modified; PrintAxioms.lean and check.sh needed no fix.
-- Limitation: same machine; the Lean toolchain binary was reused from the local elan installation (not re-downloaded).
+Date (UTC):   2026-11-25, 06:25-06:33
+Performed by: an AI agent in a Linux container, for the author.
+Result:       PASS.  Limitations are listed in section 6.
 
-== Versions
-leanprover/lean4:v4.37.0-rc1
+1. What was verified
+--------------------
+The directory containing this file as recorded in version control at commit 1e366aa of
+https://github.com/kosza123/flow-certificate-thresholds (directory
+spanning-trees-per-edge/lean-kenyon), without this file and without the directory logs/: the 39
+files listed in section 5.  They were taken with `git archive` and unpacked into a new empty
+directory <clean>/pkg outside any repository.  Before the run: no `.lake` directory, no symbolic
+link, MATHLIB_CACHE_DIR pointing to a new empty directory <clean>/cache.  This file and logs/
+were written after the run.
+
+2. Environment
+--------------
+Linux 6.18.44 x86_64, 4 CPUs, 15 GB RAM
+elan 4.4.0
 Lean (version 4.37.0-rc1, x86_64-unknown-linux-gnu, commit 0b77e12952ad39077d80d8bd6b66d601f225c321, Release)
-Lake: Lake version 5.0.0-src+0b77e12 (Lean version 4.37.0-rc1)
-elan: elan 4.4.0 (3cc76985a 2026-11-18)
-Mathlib checkout in clean room: 53dad9ed98be8416b6ca1111e55a03de4303231f
+Lake version 5.0.0-src+0b77e12 (Lean version 4.37.0-rc1)
+Mathlib checked out by Lake at 53dad9ed98be8416b6ca1111e55a03de4303231f
+(as pinned in lean-toolchain, lakefile.toml and lake-manifest.json)
 
-== Mathlib cache
-Downloaded: 9139 file(s) [attempted 9139/9139 = 100%, 557 KB/s]
-Decompressed 9139 file(s)
+3. Commands and real outputs
+----------------------------
+$ lake exe cache get                                   exit 0, 178 s   (started 06:25:29)
+    Decompressed 9139 file(s)
 
-== Build
-Build completed successfully (18329 jobs).
+$ ./scripts/check.sh        (unchanged)                exit 0, 246 s   (started 06:28:27)
+    Build completed successfully (18367 jobs).
+    OK: build, 39 axiom reports, kernel replay of 29 modules
 
-== Forbidden tokens (grep -rnwE 'sorry|admit|axiom' PlanarCore PlanarCore.lean)
-none
+Wall time of the two commands together: 424 s.  No error and no warning from the Lean sources.
+During the build Lake prints one hint per Mathlib import ("... designed for use with the module
+system; consider adding `module` ..."); check.sh removes these lines from its output, and Lake
+marks the two affected build steps with a warning sign.
 
-== Axioms (lake env lean scripts/PrintAxioms.lean)
-'PlanarCore.theorem1_certified' depends on axioms: [propext, Classical.choice, Quot.sound]
-'PlanarCore.triCert' depends on axioms: [propext, Classical.choice, Quot.sound]
-'PlanarCore.triG_certified_threshold' depends on axioms: [propext, Classical.choice, Quot.sound]
-'PlanarCore.RotCert.H2' depends on axioms: [propext, Classical.choice, Quot.sound]
-'PlanarCore.RotCert.orth' depends on axioms: [propext, Classical.choice, Quot.sound]
-'PlanarCore.RotCert.dual_mul_transpose' depends on axioms: [propext, Classical.choice, Quot.sound]
-'PlanarCore.RotCert.dual_connected' depends on axioms: [propext, Quot.sound]
-'PlanarCore.MGraph.detL_pos' depends on axioms: [propext, Classical.choice, Quot.sound]
-'PlanarCore.MGraph.current_eq_numer_div' depends on axioms: [propext, Classical.choice, Quot.sound]
-'PlanarCore.MGraph.threshold_cramer' depends on axioms: [propext, Classical.choice, Quot.sound]
-'PlanarCore.MGraph.theorem1_networks' depends on axioms: [propext, Classical.choice, Quot.sound]
-'PlanarCore.projA' depends on axioms: [propext, Classical.choice, Quot.sound]
-'PlanarCore.projB' depends on axioms: [propext, Classical.choice, Quot.sound]
-'PlanarCore.MGraph.H1_of_connected' depends on axioms: [propext, Classical.choice, Quot.sound]
-'PlanarCore.MGraph.current_abs_le_one' depends on axioms: [propext, Classical.choice, Quot.sound]
-'PlanarCore.T3_fekete' depends on axioms: [propext, Classical.choice, Quot.sound]
+check.sh runs, in this order, and stops at the first failure: lake build; a scan of the sources
+in Kenyon/ and TreeEntropy/ for sorry / admit / axiom / native_decide; scripts/PrintAxioms.lean
+(39 theorems, every reported axiom must be one of propext, Classical.choice, Quot.sound);
+leanchecker (replay of every declaration in the kernel) on the 29 modules that contain
+declarations (21 of Kenyon, 8 of TreeEntropy).
 
-== Kernel replay (lake env leanchecker PlanarCore.<M>; set -e aborts on any nonzero exit)
-PlanarCore.Threshold: ok
-PlanarCore.Projection: ok
-PlanarCore.Assembly: ok
-PlanarCore.Fekete: ok
-PlanarCore.Necessity: ok
-PlanarCore.Graph: ok
-PlanarCore.Theorem1: ok
-PlanarCore.Network: ok
-PlanarCore.Sanity: ok
-PlanarCore.Kirchhoff: ok
-PlanarCore.Certificate: ok
-PlanarCore.Final: ok
+4. Controls, run separately after check.sh
+------------------------------------------
+Axiom lists reported for the 39 theorems (logs/axiom_reports.txt):
+     39 theorems:  [propext, Classical.choice, Quot.sound]
+In particular:
+    'Kenyon.kenyon_bound' depends on axioms: [propext, Classical.choice, Quot.sound]
+    'Kenyon.kenyon_bound_real' depends on axioms: [propext, Classical.choice, Quot.sound]
+    'Kenyon.kenyon_sharp' depends on axioms: [propext, Classical.choice, Quot.sound]
 
-== Wall time
-start 2026-11-24T03:02:49Z  end 2026-11-24T03:05:54Z  total 185s (cache get + build + grep + axioms + 12 leanchecker runs)
+That the check can fail was tested three times (logs/negative_controls.txt):
+$ lake env leanchecker Kenyon.NoSuchModule             exit 1
+    uncaught exception: Could not find any oleans for: Kenyon.NoSuchModule
+Step b.  In a copy, one line appended to Kenyon/Examples.lean:
+    theorem Kenyon.placeholderControl : (1 : Nat) = 2 := by sorry
+$ ./scripts/check.sh                                   exit 1
+    FAIL: placeholder, axiom or native_decide in the sources
+Step c.  In another copy, two lines appended to scripts/PrintAxioms.lean:
+    theorem axiomControl : (1 : Nat) = 2 := sorry
+    #print axioms axiomControl
+$ ./scripts/check.sh                                   exit 1
+    'axiomControl' depends on axioms: [sorryAx]
+    FAIL: unexpected axiom
+The copies used the downloaded packages of the clean run through a symbolic link.  The failure
+of the kernel replay on a module that compiles but does not pass the kernel was not tested.
 
-== Code identity with the verified Stage-4 commit 8f7275d
-All 13 .lean files: identical to the verified development snapshot (commit 8f7275d of the private development repository) after removing comments (block /- -/ and line --) and blank lines.
-lakefile.toml, lake-manifest.json, lean-toolchain: byte-identical to 8f7275d.
+The run created .lake/packages (7.5 GB), .lake/build (365 MB) and <clean>/cache (473 MB).
+No file was modified: after check.sh and again after the controls every file had the sha256
+listed below.  Lake did not rewrite lake-manifest.json.
 
-== sha256
-361039ebd3b6c21d8431d8cb32d3a996b06ed99dfbd3867d7616ed1b391600ac  PlanarCore.lean
-1149ba623159273e3536fa6a3078fd11d2e3b43c989d89263911dda41b14bae8  PlanarCore/Assembly.lean
-86218bc18270afde63d2e0c3704a29d853142844d90eff328809144eb565fbfa  PlanarCore/Certificate.lean
-c0e23880fb1c1be0973ffa7bd49fdd562d856112f6e030393a84477f2c064521  PlanarCore/Fekete.lean
-b7259b5bbacbc19c952575147e862a1811bc43eb2b2c4be08039132f29ebb354  PlanarCore/Final.lean
-2d8d7eb01309983e7d9d898602217b1d0693a48ebd7c83cc6d86cc26c7bf7754  PlanarCore/Graph.lean
-1767f9650ac4d411b8cd8e0f7536326d53ac6bb4f6b1baaccbfbc69a66de3051  PlanarCore/Kirchhoff.lean
-589573ff29a494c467c04c939d835629fe19e68042389f0c759bc34e95fc2860  PlanarCore/Necessity.lean
-4f75fbcab8548a15d7677bb43b1626e93734cc8fdedff7653211975874f70523  PlanarCore/Network.lean
-9ae2d34c92f67105cb3eb16847b4320da0a316b8cf9a77d2533ee4d8d40372e6  PlanarCore/Projection.lean
-821e765c2c1fd7f74e0fd70daee0338352c08347bd0eb34fe82b37aa30ce3841  PlanarCore/Sanity.lean
-2d92db858524baa0d4478420b6be1f6de71f3cd50f130ec482c12cebc421961f  PlanarCore/Theorem1.lean
-cf203f7dc4360ba5606dc67ba6b2e6c48e4dec8b93f439565f37ec74e3c16c12  PlanarCore/Threshold.lean
-32a97e6fd415550837919e099dd1876d1dbe6b6e830f87338581c59e5df37503  lakefile.toml
-4c42b69441e72d2531f6aea53056f2a3b0ca8eac41ceffcc628a2ef8c2e552fa  lake-manifest.json
+The eight files TreeEntropy/*.lean and TreeEntropy.lean are byte-identical to those of the
+package of version 1 in ../lean/.
+
+5. Files verified (sha256)
+--------------------------
+fde850d24186b6e99c8c0debd641fb3ab85198b109eb66f71a1fea02bd6ea1b3  .gitignore
+2feb51b7047c0897b3c7aa1fec34bcb93b2ee965369019d9d54b8abd847f1228  Kenyon.lean
+6c920bd637dd2cbc1b1149e7c6f17985440be084f5719a93cf394a8e08fd788b  Kenyon/Amplify.lean
+92045151f5844bb1f53cd631a549a9a41c6bdfa769c8a2141f07124f98b6b8c5  Kenyon/Bethe.lean
+dee3f2df4fef15fa15fb8be2714644214b83d28aa73d868c4549fc151560f76f  Kenyon/BetheFun.lean
+70450a28e0430e10a80f24aeeebd2cf6b60cd873b0e043cb685e890d5ab04b28  Kenyon/Cayley.lean
+bb18b93441847cd99ce8e8a35db2b974e3c3702e7b2f8facf6624c02f588546e  Kenyon/Contract.lean
+508b313cf4c6cc8df5875bfe91b8be008ee269002fc12ecf7f47bf251e61a55d  Kenyon/Count.lean
+44f11ddd2faf782fc549ec2bb694d541c431226bfa4fdd8b45152a52bc474817  Kenyon/Examples.lean
+7ecaac9b9a5e1160470be16f481058b9275ab87306515499e089024c17195025  Kenyon/Forest.lean
+01147ef5ec601b8ff5730e35055b3c69ed825aba5f46364377a927beb6c45069  Kenyon/ForestCount.lean
+9cbbff25e08555c5b6716a64d486282746718e481c1bbf0e3bbdf240324dbc9c  Kenyon/Green.lean
+83fad8c53c10a1cc2b702a18aca923a77b2f719f7c1b37cbfc8aa48a75b3e768  Kenyon/Lap.lean
+feb5ac7a9142cfc26cd4f090d99630b1bcfbf08fcad668c6dddc198ab3ab437e  Kenyon/Levels.lean
+114adefa0389b74b8d23eddd4086af9c0892b05694b97bc38a5719bceacf77f4  Kenyon/LogDet.lean
+7f3b395d1aa3750367e3965cb2c0273abde8bfc55cc9525664b72eed0f1b66f3  Kenyon/Main.lean
+a4435c257f18321657c0e24f03c793f89988162186e1101967c1b798ff679f14  Kenyon/MatrixTree.lean
+e6fc9648eea76c002ae3cfd7c182ce5cd7d7bd85e54fec9ecd2492be9138692d  Kenyon/MatrixTree2.lean
+8c7edec93b0f8cb765f0bd80ad69ba2fd166805829775867fe498491936744f2  Kenyon/OneStep.lean
+dba689bb73d923fd73dd1ab18ca53110193cae663f0179b544b2f0a413c58ac9  Kenyon/Regular.lean
+4945da746ddcfc09de768d5603acd47368a01b912b8eafd9594c030ded8de232  Kenyon/Sanov.lean
+ca64d4660f78916e4d95208ef4fe4f5fea28c4ebaf6f94d2788807f65a08aa66  Kenyon/Sharp.lean
+f2b384f051a6e30f4d1dcbb370411c38b48d2da3280ba91ea3bd802df8796a98  Kenyon/Super.lean
+35cc0bc141963b989950ffc62bdfa548d6292f18d90feba3eb8f45eef873eebd  PROOF_ROUTE.md
+8756e03f3451ec8cebb13cf6429b0716c16838536470ae4afd080873f60620ab  README.md
+7494af17cf808e2f8e17ebae181addedb1e7d3ee93911cde568be6c4dd475919  TreeEntropy.lean
+45dec16e21674d068167122afb6d9200adc19cb0b620ec89fc716b72231b50db  TreeEntropy/APriori.lean
+6933b8072441e696da3a6c9c40dd476c43f327d80248676f5418026745b5dc6d  TreeEntropy/Darts.lean
+a79dcdaa97e23f82518e79dae4550c778f606dbaa4d86328211d67c573533144  TreeEntropy/Large.lean
+0764eb8e3af76aaf65f1a2bdc1006c88eaad70ffe21a8f4a57c4866829f4825e  TreeEntropy/Main.lean
+0329200623f0c172d08e7ddfb00f2e7fa2111d6b0ee07c535963feb1618e6b2e  TreeEntropy/OneVar.lean
+28277fb12c372329756a4d1cf066be35c3a27df2393ab51c320e1330b4a46a91  TreeEntropy/Sharp.lean
+54a7b7781935426ca787bb156bb0eb4ba763df06a51041727c425f41fbeaf440  TreeEntropy/Sum.lean
+f385844d77f9ffd42eacb7b2c47e71d2cb4140ff02334cffb2e240ddb80490e5  TreeEntropy/Table.lean
+2ffb1adf820512ce4cd19736bb2668d2f1d3049bcbc5d8320110d420c12e85a9  lake-manifest.json
+66f1a14ed33bac418c7e85aa2fe7d8b1500c40dccc2134e5d2b7e16974f84ab6  lakefile.toml
 f11739c25d1640e2b3fda8a98af6d64e97d7b2b1c99840535587a9079b3afee7  lean-toolchain
-b3d3d6c1d05dd14bcec6e316adef8288b7ee7757595441d4bc96e11a9d1545ce  scripts/check.sh
-4dd1f7639f794bef62f8a203e401d6b84b5ed09cd2a4ae3d34f1d0d927d5c26d  scripts/PrintAxioms.lean
+041ca8c88d7d478940baf2952ff0e2a723a9320fd187dade51f0c48e2834e918  scripts/PrintAxioms.lean
+9d8c63b8bf412a2181cb57bcc2cc64c34b8ab5baa224698292b91f75cb1e596b  scripts/check.sh
 
-== Later notes (24 Nov 2026, after this run)
-- The Zenodo record 10.5281/zenodo.24488176 was published after this run; a re-check returned HTTP 200 for https://zenodo.org/records/24488176 and the DOI resolves to it. Its Lean archive is code-identical to this snapshot.
-- scripts/check.sh now pipes the axiom report through scripts/check_axioms.sh, which fails on a missing report or on any axiom outside {propext, Classical.choice, Quot.sound}. Tested on this build: positive case passes (16 declarations); negative cases (injected sorryAx, missing report, a real `sorry` declaration) fail with exit 1.
+6. Limitations
+--------------
+* Mathlib was used as distributed: its compiled files were downloaded by `lake exe cache get`
+  and were not replayed in the kernel here.
+* The two root modules `Kenyon` and `TreeEntropy` contain only imports and are not replayed
+  (in this environment the replay of `Kenyon` exceeds the memory limit); every module with
+  declarations is replayed.
+* One environment, one run.  The verification was done by the AI agent that wrote the proofs,
+  not by an independent party.
+* Lean certifies the theorems for the definitions in the files.  That `numTrees` is the number
+  of spanning trees in the sense of the paper is a matter of reading four definitions in
+  Kenyon/Forest.lean; Kenyon/Examples.lean checks two small cases.
+* The proofs follow the second proof of the paper (Section 10), which differs from the proof of
+  its Sections 2 to 7; see README.md, "What is NOT proved here".

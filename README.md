@@ -1,188 +1,155 @@
-<p align="center"><img src="assets/logo_wordmark.png" alt="SAPIO MORPHEUS" width="520"></p>
+# Palomar candidate — verification pending
 
-# Machine-checked flow-certificate thresholds for planar graphs
+**Not submitted, not independently verified.** This isolated branch contains a candidate port of the full Kenyon proof from the immutable [published baseline](https://github.com/kosza123/flow-certificate-thresholds/tree/b4c5b60f61766ea11cb7e72cc493181ac06f6c68/spanning-trees-per-edge/lean-kenyon). The published main branch and Zenodo record remain unchanged. Archived logs below describe the baseline only, not the new port.
 
-Lean 4 formalisation and paper: *Machine-Checked Flow-Certificate Thresholds for Planar Graphs Using
-Rotation-System Certificates* by Filip Majchrzak (SAPIO MORPHEUS project).
+Challenge.lean states the four spanning-tree definitions and all three headline theorems without importing proof modules. Solution.lean repeats those definitions and uses the original full proofs. comparator.json requests exact comparison of all seven declarations.
 
-- Paper: [`paper/flow_certificate_thresholds.pdf`](paper/flow_certificate_thresholds.pdf), with its LaTeX source in `paper/`.
-- Source code: <https://github.com/kosza123/flow-certificate-thresholds>.
-- Archived on Zenodo: version 1.1, DOI [10.5281/zenodo.24496271](https://doi.org/10.5281/zenodo.24496271); all
-  versions, DOI [10.5281/zenodo.24488175](https://doi.org/10.5281/zenodo.24488175); version 1.0.0, DOI
-  [10.5281/zenodo.24488176](https://doi.org/10.5281/zenodo.24488176).
-- Version 1.1 adds the literature on squared rectangles to the paper (Section 7 and Appendix A). Version 1.0.1 added
-  an automatic axiom check to `scripts/check.sh`. The Lean sources are unchanged since 1.0.0.
+Before submission, build and run the toolchain Comparator, inspect the actual output, and resolve any module-system errors. No submission or registration should be represented as complete before it actually is.
 
-## Second note: growth of the smallest current
+Official submission form: https://submit.palomar-registry.org/
 
-The directory [`growth-constant/`](growth-constant/) contains a second note, *Two-Port Substitution and the Growth of
-the Smallest Current in Planar Networks*, and [`twoport/`](twoport/) contains its Lean package. It shows that the
-growth constant of the ratio (longest side)/(smallest square) of squared rectangles is at least 1.7194145. See
-[`growth-constant/README.md`](growth-constant/README.md).
+---
 
-## Third note: spanning trees per edge
+# Kenyon — the bound `τ < (27/8)^(m/2)` and its sharpness in Lean 4
 
-The directory [`spanning-trees-per-edge/`](spanning-trees-per-edge/) contains a third paper, *Spanning Trees per
-Edge: A Sharp Bound and a Question of Kenyon*, with its verification scripts and two Lean packages. It proves that
-every multigraph with `m >= 1` edges has fewer than `(27/8)^(m/2)` spanning trees, with the base
-`sqrt(27/8) = 1.8371...` best possible. Since version 2 (25 November 2026) both statements, the bound and the
-sharpness of the constant, are fully formalised in Lean 4 (`spanning-trees-per-edge/lean-kenyon/`). Archived on
-Zenodo: version 2.0.0, DOI [10.5281/zenodo.24523144](https://doi.org/10.5281/zenodo.24523144); version 1.0.0, DOI
-[10.5281/zenodo.24504455](https://doi.org/10.5281/zenodo.24504455). The paper and the formalisation have not yet
-been reviewed by an external expert; see
-[`spanning-trees-per-edge/README.md`](spanning-trees-per-edge/README.md).
+Lean 4 / Mathlib formalisation of Theorem 1 and Corollary 3 of the paper
+*Spanning trees per edge: a sharp bound and a question of Kenyon* (version 2): the bound
+`τ(G) < (27/8)^(m/2)` for every finite multigraph with `m ≥ 1` edges, and
+`sup_G τ(G)^(1/m) = √(27/8)`, not attained.
 
-## Fourth note: forced-entry costs under paired interval uncertainty
+```lean
+/-- Every finite multigraph with m ≥ 1 edges has fewer than (27/8)^(m/2) spanning trees. -/
+theorem Kenyon.kenyon_bound (V E : Type) [Fintype V] [Fintype E] (src tgt : E → V)
+    (hm : 0 < Fintype.card E) :
+    numTrees src tgt ^ 2 * 8 ^ Fintype.card E < 27 ^ Fintype.card E
 
-The directory [`forced-entry-costs/`](forced-entry-costs/) contains a fourth paper, *Forced-Entry Costs at a Fixed
-Optimal Assignment under Paired Interval Uncertainty: a Lean-Verified Exact Reduction and Its Consequences for
-Linear Programs*, with a Lean 4 project and verification scripts. Its main theorem, an exact reduction from
-quadratic shortest paths to a tolerance-type quantity of the assignment problem in a very restricted model of
-interval uncertainty, is formalised in full in Lean 4 with Mathlib. The consequences for linear programs transport
-known bounds on extension complexity and are not machine-checked. Archived on Zenodo, DOI
-[10.5281/zenodo.24511022](https://doi.org/10.5281/zenodo.24511022). The paper has not yet been reviewed by an
-external expert; see [`forced-entry-costs/README.md`](forced-entry-costs/README.md).
+theorem Kenyon.kenyon_bound_real (V E : Type) [Fintype V] [Fintype E] (src tgt : E → V)
+    (hm : 0 < Fintype.card E) :
+    (numTrees src tgt : ℝ) < (27 / 8 : ℝ) ^ ((Fintype.card E : ℝ) / 2)
 
-## The statement
-
-Let `G` be a connected planar multigraph with unit resistances. Pick terminals `s`, `t` and an edge `e` that
-carries a nonzero current `I_e` when one unit of current is fed in at `s` and taken out at `t`.
-
-From `G` and its plane dual we build two capacitated min-cost circulation networks, `A` and `B`, on one shared
-topology. Their observed arcs are indexed by the edges of `G`.
-
-**Theorem 1.** Consider the smallest additive tolerance `ε` such that `A` and `B` have feasible circulations
-that agree on every observed arc, each within `ε` of its own optimum. That smallest `ε` is
-
-```
-|I_e| / (1 + |I_e|)  =  |N| / (D + |N|),
+/-- The constant 27/8 cannot be lowered. -/
+theorem Kenyon.kenyon_sharp (c : ℝ) (hc0 : 0 < c) (hc : c < 27 / 8) :
+    ∃ (V E : Type) (_ : Fintype V) (_ : Fintype E) (src tgt : E → V),
+      0 < Fintype.card E ∧ c ^ Fintype.card E < (numTrees src tgt : ℝ) ^ 2
 ```
 
-where `D = det(A Aᵀ) > 0` is the reduced Laplacian determinant and `N` is an integer Cramer numerator with
-`I_e = N / D`.
+There is no hypothesis on the multigraph in `kenyon_bound`: loops, multiple edges and
+disconnected graphs are allowed. Every theorem depends only on the axioms `propext`,
+`Classical.choice`, `Quot.sound`.
 
-The dual must be oriented consistently: every dual edge crosses its primal edge in the same direction. With an
-inconsistent orientation the statement fails (paper, Remark 1). In Lean the orientation is fixed by the
-certificate.
+Proposition 2 of the paper (the limit for every sequence of connected 4-regular graphs of growing
+girth, quoted there from McKay and Lyons) is **not** formalised; the lower bound for the supremum
+is proved here directly, on an explicit family of graphs.
 
-By the classical matrix-tree theorem, `D` is the number of spanning trees and `|N|` is a signed spanning-tree
-count. That identification is classical and **not** formalised here.
+| Pin | Value |
+| --- | --- |
+| Lean | `4.37.0-rc1`, see `lean-toolchain` |
+| Mathlib | commit `53dad9ed98be8416b6ca1111e55a03de4303231f`, see `lakefile.toml`, `lake-manifest.json` |
 
-## What the Lean code proves
+The directory the version 1 package in the published baseline is the package of version 1 (the edge inequality only). It
+is kept unchanged. Its eight modules `TreeEntropy/*` are copied here without change and are used
+by the proof.
 
-`PlanarCore.theorem1_certified` (file `PlanarCore/Final.lean`) has three hypotheses:
+## How to check
 
-1. `G` is connected;
-2. `C : RotCert G f` is a genus-0 rotation-system certificate for `G`;
-3. `I_e ≠ 0`.
-
-From these it derives:
-
-- `D > 0`;
-- `I_e = N / D` with `N ∈ ℤ`;
-- `IsLeast {ε | AdmissibleTransfer (netA …) (netB …) ε} (|N| / (D + |N|))`.
-
-The two circulation networks are built explicitly, and the following are all proved, not assumed:
-
-- the dual graph is computed from the certificate;
-- `A Bᵀ = 0`;
-- the dual is connected;
-- `ker B = row A`;
-- `0 ≤ I ≤ 1` after reorientation;
-- the invertibility of `A Aᵀ`.
-
-**Cited, not formalised.** A connected multigraph is planar if and only if it has a genus-0 rotation system.
-This is the Heffter–Edmonds–Ringel rotation principle combined with Euler's formula. Inside Lean, "planar"
-means "has a `RotCert`".
-
-**Not formalised.** The following are not formalised:
-
-- the matrix-tree identification of `D` and `N`;
-- that the reoriented dual equals the dual of a certificate for the reoriented graph (immediate, argued in the
-  paper, Section 5.3);
-- the minimum over all `(s, t, e)`.
-
-The auxiliary module `PlanarCore/Fekete.lean` formalises only an abstract Fekete-type step, with its
-graph-theoretic inputs taken as hypotheses (paper, Appendix A).
-
-## Reproduce
-
-Requirements: [elan](https://github.com/leanprover/elan) (the Lean toolchain manager), git, and network access
-to GitHub and the Mathlib cache.
+Requirements: [elan](https://github.com/leanprover/elan), git, about 8 GB of free disk space.
 
 ```bash
-git clone https://github.com/kosza123/flow-certificate-thresholds.git
-cd flow-certificate-thresholds
-./scripts/check.sh
+lake exe cache get        # pre-built Mathlib for the pinned commit
+./scripts/check.sh        # prints "OK: build, 39 axiom reports, kernel replay of 29 modules"
 ```
 
-The script runs five steps:
+`scripts/check.sh` runs, and fails if any step fails: `lake build`; a scan of the sources for
+`sorry`, `admit`, `axiom`, `native_decide`; `scripts/PrintAxioms.lean` (for 39 theorems every
+axiom used must be one of the three above); `leanchecker` (replay of every declaration in the
+Lean kernel) on the 29 modules that contain declarations. During the build Lake prints a hint
+about the module system for every Mathlib import; it is not an error.
 
-1. it fetches the prebuilt Mathlib cache with `lake exe cache get`;
-2. it builds the library with `lake build`;
-3. it checks that the sources contain no `sorry`, `admit` or `axiom`;
-4. it prints the axioms of the main theorems (`scripts/PrintAxioms.lean`) and fails, via `scripts/check_axioms.sh`,
-   if any report is missing or any axiom other than `propext`, `Classical.choice` or `Quot.sound` appears;
-5. it replays every module in the kernel checker `leanchecker`.
+A recorded run in a clean directory, with three negative controls, is in
+[`VERIFICATION_CLEANROOM.txt`](VERIFICATION_CLEANROOM.txt); the raw outputs are in `logs/`.
 
-Pinned versions:
+## The definitions to read
 
-| Component | Version |
-|---|---|
-| Lean | `leanprover/lean4:v4.37.0-rc1` (`lean-toolchain`) |
-| Mathlib | commit `53dad9ed98be8416b6ca1111e55a03de4303231f` (`lakefile.toml`, `lake-manifest.json`) |
+A multigraph is a pair of maps `src tgt : E → V` on finite types (an edge `e` joins `src e` and
+`tgt e`; a loop has `src e = tgt e`). The meaning of the theorems rests on four definitions in
+`Kenyon/Forest.lean`:
 
-Expected results: the build succeeds, no forbidden tokens are found, and every listed theorem depends only on
-`propext`, `Classical.choice` and `Quot.sound`. The kernel replay passes for all 12 modules. See
-[`VERIFICATION.md`](VERIFICATION.md) for the recorded outputs.
+```lean
+def Adj (src tgt : E → V) (F : Finset E) (x y : V) : Prop :=
+  ∃ e ∈ F, (src e = x ∧ tgt e = y) ∨ (src e = y ∧ tgt e = x)
+def Conn (src tgt : E → V) (F : Finset E) : V → V → Prop :=
+  Relation.ReflTransGen (Adj src tgt F)
+def IsTree (src tgt : E → V) (T : Finset E) : Prop :=
+  T.card + 1 = Fintype.card V ∧ ∀ x y, Conn src tgt T x y
+noncomputable def numTrees (src tgt : E → V) : ℕ :=
+  ((univ : Finset (Finset E)).filter fun T => IsTree src tgt T).card
+```
 
-## Files
+A spanning tree is a set of `|V| − 1` edges that joins every two vertices. `Kenyon/Examples.lean`
+checks the count on two small cases: one vertex with a loop has `1` spanning tree, two vertices
+with two parallel edges have `2`.
 
-| File | Content |
-|---|---|
-| `PlanarCore/Graph.lean` | multigraph model, incidence matrices, currents, invertibility of `A Aᵀ`, `0 ≤ I ≤ 1` |
-| `PlanarCore/Threshold.lean`, `Projection.lean`, `Assembly.lean` | threshold of two linear gaps; projection algebra |
-| `PlanarCore/Network.lean` | the explicit circulation networks `netA`, `netB`; projections, costs, optima; `theorem1_networks` |
-| `PlanarCore/Certificate.lean` | `RotCert`; dual, `A Bᵀ = 0`, dual connectivity, `ker B = row A` |
-| `PlanarCore/Kirchhoff.lean` | `D > 0`, `I_e = N/D` (Cramer) |
-| `PlanarCore/Final.lean` | `theorem1_certified` and a decided example (a triangle with a pendant edge) |
-| `PlanarCore/Theorem1.lean`, `Sanity.lean`, `Necessity.lean` | intermediate integration, a non-vacuity check, and a counterexample showing `0 ≤ I ≤ 1` is needed |
-| `PlanarCore/Fekete.lean` | auxiliary: abstract Fekete step and inequalities (paper, Appendix A) |
-| `crosscheck/lp_crosscheck.py` | optional independent numerical check by linear programming (Python with networkx, sympy and scipy); not part of the proof |
-| `VERIFICATION.md`, `VERIFICATION_CLEANROOM.txt` | recorded outputs of the clean-room run |
+## How the proof goes
 
-## Claims and priority
+The formal proof follows the second proof of the paper (Section 10), not the proof of its
+Sections 2 to 7: there is no universal cover, no random walk, no power series and no analytic
+continuation. The steps, with the names of the Lean theorems, are listed in
+[`PROOF_ROUTE.md`](PROOF_ROUTE.md).
 
-This work makes no claim to solve a known open problem.
+**Upper bound.**
 
-- **Classical:** Kirchhoff's current formula, the matrix-tree theorem, planar duality, the rotation principle
-  and Fekete's lemma.
-- **Prior work:** Bu and Pan give a linear-algebraic planarity criterion through spanning-tree numbers and
-  concatenated incidence matrices (SIAM J. Discrete Math. 39 (2025), doi:10.1137/24M1660395). For terminals on a
-  common face, edge currents are the sides of a squared rectangle (Brooks, Smith, Stone and Tutte, 1940). The size of
-  such tilings is bounded by Conway (1964), Kenyon (1996), Fomin (arXiv:2103.10523; base 1.8637) and Keleti, Lacina,
-  Liu, Liu and Tuirán Rangel (2023). Chan, Kontorovich and Pak
-  study inverse problems for effective resistance and spanning-tree counts.
-- **Possibly new:** the two-network threshold statement as packaged here, and this formal development. Our
-  literature search was limited and is described in the paper. We claim no priority.
+| Module | Content |
+| --- | --- |
+| `TreeEntropy/*` | the edge inequality (package of version 1), unchanged |
+| `Levels` | the dart system `h_{u→v} (d_u − z Σ h) = z` with a parameter `z ∈ [0,1]`; its least solution as a monotone limit; `xi_one_le`: the edge inequality applies to it at `z = 1` |
+| `Green` | maximum principle; if `g ≥ 0` and `(D − zA) g ≥ 0` then `g(u) ≥ h_{u→v} g(v)` |
+| `Super`, `BetheFun` | the Bethe functional increases along a segment of super-solutions |
+| `OneStep` | `Xi z = Σ_v log P_v − Σ_e log (1 − q_e)`; `Xi b − Xi a ≥ −(b − a) Wsum b` |
+| `LogDet` | `det N ≤ det M · exp (tr (M⁻¹N) − n)` for `M` positive definite, `N` positive semidefinite |
+| `Lap` | `K(z) = D − zA`; `det K(b) ≤ det K(a) exp (−(b − a) Wsum a)` |
+| `Bethe` | `det K(z) ≤ exp (Xi z)` for `0 ≤ z < 1`, by telescoping over a partition of `[0, z]` |
+| `Forest`, `MatrixTree` | spanning trees and rooted forests; `det K(z) ≥ (1 − z) d_r z^(n−1) · numTrees` |
+| `Count` | `numTrees ≤ n² e³ (27/8)^(m/2)` when every degree is ≥ 2 and no edge joins two vertices of degree 2 |
+| `Amplify` | `N` copies glued at a vertex remove the factor `n² e³` |
+| `Contract`, `Main` | deletion and contraction of an edge; induction on `m` for all multigraphs; strictness by parity |
 
-## AI assistance
+**Sharpness.**
 
-This project was carried out with substantial assistance from AI systems working under the author's direction.
-The project uses models from OpenAI and Anthropic.
+| Module | Content |
+| --- | --- |
+| `ForestCount`, `MatrixTree2` | counting lemma, extension of a rooted forest to a spanning tree, the other half of the matrix-tree theorem for rooted forests; `det K(z) ≤ numTrees · (1 + y)^(n+m)` for connected multigraphs with `(1 − z) d_v ≤ y²` |
+| `Regular` | 4-regular multigraphs: the solution of the dart system is a constant `s(z) ≤ z/3`, `s(1) = 1/3`, `Xi 1 = n log (27/8)`, and `Xi b − Xi a ≤ −(b − a) Wsum a` |
+| `Cayley` | graphs of an action of four letters; counters of walks without backtracking; if no reduced word of length `1..k+1` is closed, `K(t)⁻¹_{vv} ≤ (1 + t^(k+2)/(1 − t)) / P(t)` |
+| `Sanov` | the group of permutations of `(ℤ/n)²` generated by `(x,y) ↦ (x+2y, y)` and `(x,y) ↦ (x, y+2x)`; for `3^J + 1 < n` no nonempty reduced word of length `≤ J` is trivial; the graph is connected |
+| `Sharp` | `log det K(z) ≥ Xi z − n · 2 z^(k+1)/(1 − z)`; lower bound for `numTrees`; `kenyon_sharp` |
 
-- The mathematical write-up behind the paper was drafted by one AI agent of the project.
-- The Lean formalisation, the literature comparison and the manuscript were produced by AI agents based on
-  Anthropic's Claude (Claude Code).
-- Every formal claim is checked by the Lean kernel.
-- The author selected the problem, directed the work, made the publication decisions and is responsible for the
-  content.
+## What is NOT proved here
 
-## License
+* The lemmas of Sections 3 to 5 of the paper as they are stated there (hitting probabilities on
+  the universal cover, the spectral form of the matrix-tree theorem, the closed formula as a
+  limit, the comparison of a graph with its cover) are not formalised and are not used. The two
+  theorems are proved by the route of Section 10, which was found while formalising the theorem;
+  it has been checked by Lean and by the AI agents that wrote it, not by an external expert.
+* Proposition 2 of the paper in its generality (every sequence of connected 4-regular graphs of
+  growing girth, with convergence of `numTrees^(1/m)`) is not formalised. The sharpness is proved
+  for the family of `Kenyon/Sanov.lean`, and more generally (`Act.numTrees_ge`) for connected
+  graphs of an action of four letters without short closed reduced words.
+* Corollaries 4 and 5 of the paper (planar graphs and link determinants; the growth constant of
+  the smallest current) and the equality statement of its Remark on equality are not formalised.
+* The full matrix-tree theorem is present only in the form needed: both inequalities between
+  `det (redMat Es R 0 z)` and `z^(|V|−|R|) · numForests Es R` (`numForests_le_det`,
+  `det_le_numForests`). The equality is not stated as one theorem.
+* Lean certifies the theorems for the definitions in these files. That `numTrees` is the number
+  of spanning trees in the sense of the paper is a matter of reading the four definitions above.
 
-- Lean code and scripts: Apache License 2.0 (`LICENSE`).
-- Paper (text and figures): Creative Commons Attribution 4.0 International (CC BY 4.0).
+## What is trusted
 
-## Citation
+The Lean 4 kernel; the three standard axioms; Mathlib as distributed for the pinned commit (its
+compiled files are downloaded and not replayed here); Lake and `leanchecker`.
 
-See [`CITATION.cff`](CITATION.cff).
+## Authorship and licence
+
+The proofs in this directory were written by an AI agent based on Anthropic's Claude, working
+under the direction of Filip Majchrzak (SAPIO MORPHEUS project), who takes responsibility for the
+content. No external expert has reviewed the formalisation. Licence of the code: Apache-2.0.
+

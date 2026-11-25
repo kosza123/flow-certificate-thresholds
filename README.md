@@ -23,11 +23,13 @@ growth constant of the ratio (longest side)/(smallest square) of squared rectang
 ## Third note: spanning trees per edge
 
 The directory [`spanning-trees-per-edge/`](spanning-trees-per-edge/) contains a third paper, *Spanning Trees per
-Edge: A Sharp Bound and a Question of Kenyon*, with its verification scripts and a Lean package for the key
-inequality. It proves that every multigraph with `m >= 1` edges has fewer than `(27/8)^(m/2)` spanning trees, with
-the base `sqrt(27/8) = 1.8371...` best possible. Archived on Zenodo, DOI
-[10.5281/zenodo.24504455](https://doi.org/10.5281/zenodo.24504455). The theorem as a whole is not machine-checked
-and has not yet been reviewed by an external expert; see
+Edge: A Sharp Bound and a Question of Kenyon*, with its verification scripts and two Lean packages. It proves that
+every multigraph with `m >= 1` edges has fewer than `(27/8)^(m/2)` spanning trees, with the base
+`sqrt(27/8) = 1.8371...` best possible. Since version 2 (25 November 2026) both statements, the bound and the
+sharpness of the constant, are fully formalised in Lean 4 (`spanning-trees-per-edge/lean-kenyon/`). Archived on
+Zenodo: version 2.0.0, DOI [10.5281/zenodo.24523144](https://doi.org/10.5281/zenodo.24523144); version 1.0.0, DOI
+[10.5281/zenodo.24504455](https://doi.org/10.5281/zenodo.24504455). The paper and the formalisation have not yet
+been reviewed by an external expert; see
 [`spanning-trees-per-edge/README.md`](spanning-trees-per-edge/README.md).
 
 ## Fourth note: forced-entry costs under paired interval uncertainty

@@ -3,7 +3,7 @@
 \usepackage{amssymb,amsmath,amsthm,mathtools}
 \usepackage{booktabs,array}
 \usepackage[hidelinks]{hyperref}
-\hypersetup{pdftitle={Spanning Trees per Edge: A Sharp Bound and a Question of Kenyon, with a Lean-Checked Key Inequality and Computer Certificates},pdfauthor={Filip Majchrzak}}
+\hypersetup{pdftitle={Spanning Trees per Edge: A Sharp Bound and a Question of Kenyon, with a Lean 4 Formalisation of the Bound and of Its Sharpness},pdfauthor={Filip Majchrzak}}
 \IfFileExists{microtype.sty}{\usepackage[expansion=false]{microtype}}{}
 \emergencystretch=3em
 
@@ -23,11 +23,11 @@
 \newcommand{\tht}{\theta}
 \DeclareMathOperator{\tr}{tr}
 
-\title[Spanning trees per edge]{Spanning Trees per Edge:\\ A Sharp Bound and a Question of Kenyon\\[4pt] {\normalfont\large with a Lean-checked key inequality and computer certificates}}
+\title[Spanning trees per edge]{Spanning Trees per Edge:\\ A Sharp Bound and a Question of Kenyon\\[4pt] {\normalfont\large with a Lean~4 formalisation of the bound and of its sharpness}}
 \author{Filip Majchrzak}
 \address{Independent researcher, Poland (SAPIO MORPHEUS project)}
-\thanks{ORCID 0009-0007-3475-8900. Version 1.0, 24 November 2026. Archived at Zenodo, \href{https://doi.org/10.5281/zenodo.24504455}{doi:10.5281/zenodo.24504455}. Text licensed CC BY 4.0; code Apache-2.0.}
-\date{24 November 2026}
+\thanks{ORCID 0009-0007-3475-8900. Version 2.0, 25 November 2026, archived at Zenodo, \href{https://doi.org/10.5281/zenodo.24523144}{doi:10.5281/zenodo.24523144}. Version 1.0 of 24 November 2026 remains available at \href{https://doi.org/10.5281/zenodo.24504455}{doi:10.5281/zenodo.24504455}; all versions: \href{https://doi.org/10.5281/zenodo.24504454}{doi:10.5281/zenodo.24504454}. Changes in version 2: Section~\ref{sec:second}, the Lean package \code{lean-kenyon}, and the paragraphs on the status of verification; Sections 2--9 are unchanged. Text licensed CC BY 4.0; code Apache-2.0.}
+\date{25 November 2026}
 
 \begin{document}
 
@@ -43,7 +43,7 @@ the bound improves the constant $1.8393$ of Stoimenow slightly, to $1.8371$; the
 $1.7916$ remains open, and no argument that ignores planarity can go below $\sqrt{27/8}$. The proof compares
 $G$ with its universal cover, uses a known closed formula for the tree entropy of the cover, and bounds it edge
 by edge through one concavity step and an explicit one-variable inequality.
-The a priori bounds, the two identities and the key inequality (Sections \ref{sec:cover} and \ref{sec:edge}) are formalised in Lean~4 with Mathlib as statements about real numbers; the probabilistic input, the closed formula, the comparison with the cover and the reductions are ordinary proofs and are not formalised, so the theorem as a whole is not machine-checked. The numerical inequalities are also certified by interval arithmetic, and the theorem was confirmed exhaustively for all multigraphs with at most $14$ edges.
+Both statements are formalised in Lean~4 with Mathlib (new in this version): the bound for every finite multigraph, and the fact that no smaller base suffices. The formal proof follows a second route, described in Section~\ref{sec:second}: it keeps the edge inequality but replaces the universal cover by a comparison of Green functions and a tangent inequality for $\log\det$, and it proves the lower bound for the supremum on an explicit family of graphs instead of quoting McKay and Lyons. The numerical inequalities are also certified by interval arithmetic, and the theorem was confirmed exhaustively for all multigraphs with at most $14$ edges.
 \end{abstract}
 
 \maketitle
@@ -73,6 +73,8 @@ for $d$-regular graphs, which is $27/8$ per vertex for $d=4$, and Lyons \cite{Ly
 Example~3.16 in the arXiv version) proved the convergence for every sequence of connected graphs whose random weak
 limit is the $4$-regular tree; girth tending to infinity implies this. A $4$-regular graph with $N$ vertices has
 $m=2N$ edges. Corollary~\ref{cor:sup} follows from Theorem~\ref{thm:main} and Proposition~\ref{prop:sharp}.
+Section~\ref{sec:second} (new in version~2) gives a second proof of Theorem~\ref{thm:main} and a direct proof of the
+lower bound in Corollary~\ref{cor:sup}, on an explicit family of graphs; both are checked by Lean.
 
 \subsection*{A question of Kenyon}
 In his paper on tiling a rectangle with the fewest squares, Kenyon \cite{Kenyon} (\S9 of the arXiv version) needed
@@ -140,11 +142,30 @@ The proof has three parts.
 Parts 1 and 2 are not new. As far as we could determine, part~3 and Theorem~\ref{thm:main} are. The literature
 search and its limits are described in Section~\ref{sec:lit}; we make no claim beyond it.
 
+The second proof, in Section~\ref{sec:second}, keeps part~3 and replaces parts 1 and 2: the comparison with the
+cover becomes a comparison of Green functions on $G$ itself, and the closed formula is used as a definition.
+We did not search the literature for the ingredients of that proof and make no claim of novelty for them.
+
 \subsection*{Status of verification}
 The proof is elementary but has several steps, and it was produced by AI agents under the author's direction (see
 the end of the paper). We therefore state exactly what has been checked and how.
 \begin{itemize}
-\item \emph{Formal verification of the key inequality (Lean~4 with Mathlib).} Sections \ref{sec:cover} and
+\item \emph{Formal verification of Theorem~\ref{thm:main} and of Corollary~\ref{cor:sup} (Lean~4 with Mathlib; new
+  in version~2).} A multigraph is given by two maps $\mathrm{src},\mathrm{tgt}\colon E\to V$ between finite sets,
+  and $\tau$ is defined as the number of sets $T\subseteq E$ with $|T|+1=|V|$ that join every two vertices. Lean
+  checks: (1) if $|E|\ge1$, then $\tau^2\cdot8^{|E|}<27^{|E|}$, with no hypothesis on the multigraph; (2) for every
+  real $c$ with $0<c<27/8$ there is a multigraph with $|E|\ge1$ and $c^{|E|}<\tau^2$. These are
+  Theorem~\ref{thm:main} and Corollary~\ref{cor:sup}. The proofs contain no \code{sorry}, use only the three
+  standard axioms of Lean and Mathlib, and are replayed by the kernel checker. They follow the route of
+  Section~\ref{sec:second}, not the proof of Sections \ref{sec:red}--\ref{sec:proof}.
+  \emph{Not formalised:} Proposition~\ref{prop:sharp} in its generality (the lower bound is proved for an explicit
+  family of graphs, see Section~\ref{sec:second}); Corollaries \ref{cor:planar} and \ref{cor:current}; the equality
+  statement of Remark~\ref{rem:eq}; and the lemmas of Sections \ref{sec:cover}--\ref{sec:compare} in the form
+  stated there, namely that hitting probabilities on the universal cover satisfy the first-step relations, the
+  closed formula (Lemma~\ref{lem:formula}) and Lemmas \ref{lem:mtt} and \ref{lem:compare}. The formal proof does
+  not use them. That the formal definition of $\tau$ is the number of spanning trees is a matter of reading four
+  short definitions; two small examples are checked ($\tau=1$ for a loop, $\tau=2$ for two parallel edges).
+\item \emph{Formal verification of the key inequality (Lean~4 with Mathlib; version~1).} Sections \ref{sec:cover} and
   \ref{sec:edge} are formalised as statements about real numbers. Lean checks the following: let $h$ be a positive
   function on the darts of a finite multigraph with minimum degree at least $2$ and no edge between two vertices of
   degree $2$; if $h$ satisfies the first-step equation \eqref{eq:h} and is the pointwise limit of functions
@@ -156,10 +177,9 @@ the end of the paper). We therefore state exactly what has been checked and how.
   Case~C, Lean uses exact inequalities between natural numbers for degrees $2$ to $119$, evaluated by its kernel,
   and a direct estimate for larger degrees. The proof contains no \code{sorry} and uses only the three standard
   axioms of Lean and Mathlib, and an explicit example shows that equality can occur.
-  \emph{Not formalised:} that hitting probabilities on the universal cover satisfy these first-step relations, the
-  closed formula (Lemma~\ref{lem:formula}), Lemmas \ref{lem:mtt} and \ref{lem:compare}, the reductions of
-  Section~\ref{sec:red}, the amplification of Section~\ref{sec:proof} and the equality statement of
-  Remark~\ref{rem:eq}. Theorem~\ref{thm:main} itself is therefore not machine-checked.
+  This package is kept unchanged from version~1; its eight modules are used, without change, by the formal
+  proof of Theorem~\ref{thm:main}. In version~1 this was the only formalised part, and
+  Theorem~\ref{thm:main} itself was not machine-checked.
 \item \emph{Interval arithmetic.} Independently of Lean, the numerical facts of Lemma~\ref{lem:num} and the
   constants of Case~C of Lemma~\ref{lem:edge} are certified with $60$-digit interval arithmetic at explicit rational
   points (Appendix~\ref{app:num}).
@@ -169,7 +189,7 @@ the end of the paper). We therefore state exactly what has been checked and how.
   $8{,}350{,}006$ connected loopless multigraphs with at most $14$ edges that are not trees (for a tree $\tau=1$).
   This is a sanity check far from the sharp regime.
 \end{itemize}
-What has not been done: no external expert has reviewed this paper. We welcome corrections.
+What has not been done: no external expert has reviewed this paper or the formalisation. We welcome corrections.
 
 \section{Reductions}\label{sec:red}
 
@@ -445,6 +465,8 @@ for connected $4$-regular graphs $G_j$ whose girth tends to infinity; such graph
 
 Corollaries \ref{cor:sup}, \ref{cor:planar} and \ref{cor:current} were derived in the introduction; in
 Corollary~\ref{cor:sup} the supremum is not attained because the inequality of Theorem~\ref{thm:main} is strict.
+A proof of the lower bound $\sup_G\tau(G)^{1/m}\ge\tht$ that does not use Proposition~\ref{prop:sharp} is given in
+Section~\ref{sec:second}.
 
 \section{Literature}\label{sec:lit}
 
@@ -469,6 +491,9 @@ covers. For planar graphs, see the introduction; recent work \cite{Burton,CK25} 
 bound as a conjecture. The formula of Lemma~\ref{lem:formula} is in \cite{BBGSS}, and the system \eqref{eq:I}
 is the covariance system (2.5) of \cite{Watanabe} (with unit weights, at energy $0$).
 
+The search described in this section was made for version~1 and concerns Theorem~\ref{thm:main} and the first
+proof. It was not repeated or extended for the second proof of Section~\ref{sec:second}.
+
 \section{Questions}
 
 \textup{(1)} Kenyon's first question: which graphs with $m$ edges maximise $\tau$? By exhaustive computation the
@@ -478,11 +503,227 @@ from $\tht$: small graphs are not close to extremal.
 that is, short cycles of the graph and of its dual. \textup{(3)} Is $\tau(G)\le\tht^{\,m}$ true with a
 polynomial saving in $m$, as in McKay's bound for regular graphs?
 
+\section{A second proof, formalised in Lean~4}\label{sec:second}
+
+This section was added in version~2. It describes the proof of Theorem~\ref{thm:main}, and of the lower bound in
+Corollary~\ref{cor:sup}, that is checked by Lean (package \code{lean-kenyon}, Appendix~\ref{app:num}). The proof
+uses the system \eqref{eq:h} with a parameter and the edge inequality of Section~\ref{sec:edge}. It uses neither
+the universal cover as an object, nor probability, nor power series. Names of the corresponding Lean theorems
+are given in brackets.
+
+\subsection*{Notation}
+Let $G$ be a multigraph with $n$ vertices and $m$ edges, $D$ the diagonal matrix of degrees and $A$ the adjacency
+matrix (a loop at $v$ contributes $2$ to $d_v$ and to $A_{vv}$), so that $D-A$ is the Laplacian. For $z\in[0,1]$
+put $K(z):=D-zA$. Let $\cC'$ be the class of multigraphs in which all degrees are at least $2$ and no edge joins
+two vertices of degree $2$. Loops are allowed and connectivity is not required, so $\cC\subset\cC'$.
+
+\subsection*{Step 1: the dart system with a parameter}
+Let $G\in\cC'$ and $z\in[0,1]$. Define functions on the darts by $h^{(0)}=0$ and
+\begin{equation}\label{eq:hz}
+  h^{(t+1)}_{u\to v}=\frac{z}{d_u-z\sum_{w\ne v}h^{(t)}_{w\to u}},
+\end{equation}
+the sum being over the $d_u-1$ other darts into $u$, as in \eqref{eq:h}. By induction the $h^{(t)}$ satisfy the
+bounds of Lemma~\ref{lem:apriori}, increase with $t$ and with $z$, and converge to a solution $h=h(z)$ of
+$h_{u\to v}\bigl(d_u-z\sum_{w\ne v}h_{w\to u}\bigr)=z$. Put
+\[
+  S_v:=\sum_{u\to v}h_{u\to v},\qquad P_v:=d_v-zS_v,\qquad q_e:=h_{u\to v}h_{v\to u},
+\]
+\[
+  \Xi(z):=\sum_v\log P_v-\sum_e\log(1-q_e),\qquad W(z):=\sum_v\frac{S_v}{P_v}.
+\]
+For $z=1$ the system is \eqref{eq:h}, $P_v=1/x_v$ and $1-q_e=1/(1+r_e)$, so
+$\Xi(1)=\sum_e\log(1+r_e)-\sum_v\log x_v$, and the edge inequality, in the form checked in version~1, gives
+\begin{equation}\label{eq:xi1}
+  \Xi(1)\le mL\qquad(G\in\cC').
+\end{equation}
+[\code{sol\_fix\_p}, \code{sol\_mono\_z}, \code{xi\_one\_le}]
+
+\subsection*{Step 2: comparison of Green functions}
+\begin{lemma}\label{lem:green}
+Let $G\in\cC'$, $z\in[0,1]$ and $g\colon V\to[0,\infty)$ with $K(z)g\ge0$ at every vertex. Then
+$g(u)\ge h_{u\to v}(z)\,g(v)$ for every dart $u\to v$, and $(K(z)g)(v)\le P_v(z)\,g(v)$ for every vertex $v$.
+\end{lemma}
+\begin{proof}
+We show $g(u)\ge h^{(t)}_{u\to v}g(v)$ by induction on $t$. The inequality $(K(z)g)(u)\ge0$ and the induction
+hypothesis for the other darts into $u$ give
+$d_ug(u)\ge z\,g(v)+z\sum_{w\ne v}g(w)\ge z\,g(v)+z\sum_{w\ne v}h^{(t)}_{w\to u}\,g(u)$, which is
+$g(u)\ge h^{(t+1)}_{u\to v}g(v)$. Let $t\to\infty$. Then
+$(K(z)g)(v)=d_vg(v)-z\sum_{u\to v}g(u)\le d_vg(v)-zS_vg(v)$.
+\end{proof}
+For $0\le z<1$ the matrix $K(z)$ is positive definite and $K(z)g\ge0$ implies $g\ge0$ (maximum principle), so the
+lemma applies to the columns of $K(z)^{-1}$: $(K(z)^{-1})_{vv}\ge1/P_v(z)$, and, since
+$\tr(K^{-1}A)=\sum_v\sum_{u\to v}(K^{-1})_{uv}$,
+\begin{equation}\label{eq:trace}
+  \tr\bigl(K(z)^{-1}A\bigr)\ \ge\ W(z)\qquad(0\le z<1).
+\end{equation}
+[\code{dart\_ineq\_sol}, \code{green\_sol}, \code{trace\_inv\_mul\_Amat\_ge}]
+
+\subsection*{Step 3: the determinant is at most its Bethe value}
+\begin{proposition}\label{prop:bethe}
+For $G\in\cC'$ and $0\le z<1$, $\ \det(D-zA)\le\exp\Xi(z)$.
+\end{proposition}
+\begin{proof}
+Let $0\le a\le b<1$. We prove two inequalities.
+
+\smallskip\noindent\emph{(i)} For a positive definite real matrix $M$ and a positive semidefinite matrix $N$ of
+size $n$, $\det N\le\det M\cdot\exp\bigl(\tr(M^{-1}N)-n\bigr)$; indeed the eigenvalues $\lambda_i\ge0$ of
+$M^{-1/2}NM^{-1/2}$ satisfy $\lambda_i\le e^{\lambda_i-1}$. With $M=K(a)$, $N=K(b)=K(a)-(b-a)A$ and
+\eqref{eq:trace},
+\[
+  \log\det K(b)-\log\det K(a)\ \le\ -(b-a)\tr\bigl(K(a)^{-1}A\bigr)\ \le\ -(b-a)\,W(a).
+\]
+
+\noindent\emph{(ii)} For a function $k$ on the darts put
+$B(z;k):=\sum_v\log\bigl(d_v-z\sum_{u\to v}k_{u\to v}\bigr)-\sum_e\log(1-k_{u\to v}k_{v\to u})$, so that
+$\Xi(z)=B(z;h(z))$. Call $k$ a \emph{super-solution} at $a$ if
+$k_{u\to v}\bigl(d_u-a\sum_{w\ne v}k_{w\to u}\bigr)\ge a$ for all darts. Among the nonnegative functions that
+satisfy the bounds of Lemma~\ref{lem:apriori} the super-solutions form a convex set, because
+$k\mapsto a/(d_u-a\sum_{w\ne v}k_{w\to u})$ is convex. At a super-solution every partial derivative of
+$B(a;\cdot)$ is nonnegative:
+$\partial B/\partial k_{u\to v}=k_{v\to u}/(1-q_e)-a/P_v$, and $k_{v\to u}P_v\ge a(1-q_e)$ is the super-solution
+inequality for the dart $v\to u$. Both $h(a)$ and $h(b)$ are super-solutions at $a$, and $h(a)\le h(b)$; hence
+$B(a;h(a))\le B(a;h(b))$. Finally, with $S_v=S_v(b)$ and $P_v=P_v(b)$,
+$B(b;h(b))-B(a;h(b))=-\sum_v\log\bigl(1+(b-a)S_v/P_v\bigr)\ge-(b-a)W(b)$. Together,
+\[
+  \Xi(b)-\Xi(a)\ \ge\ -(b-a)\,W(b).
+\]
+
+\noindent Let $F:=\log\det K-\Xi$. Then $F(0)=0$, since $h(0)=0$, and by (i) and (ii)
+$F(b)-F(a)\le(b-a)\bigl(W(b)-W(a)\bigr)$. Summing over the partition of $[0,z]$ into $N$ equal parts gives
+$F(z)\le\frac zN\bigl(W(z)-W(0)\bigr)\le3nz/N$, because $0\le W\le3n$ by Lemma~\ref{lem:apriori}. Let $N\to\infty$.
+\end{proof}
+\noindent No derivative of $h(z)$ with respect to $z$ is used. [\code{Bfun\_mono}, \code{Xi\_step},
+\code{det\_le\_det\_mul\_exp}, \code{det\_Kmat\_step}, \code{det\_Kmat\_le\_exp\_Xi}]
+
+\subsection*{Step 4: from the determinant to spanning trees}
+Write $K(z)=(1-z)D+z(D-A)$. For a set $R$ of vertices and a nonnegative diagonal matrix $c$ let $M_R$ be the
+matrix $c+z(D-A)$ with the rows and columns of $R$ replaced by those of the identity, and let $f(R)$ be the
+number of sets of $n-|R|$ edges that join every vertex to a vertex of $R$ (spanning forests with exactly one
+vertex of $R$ in each component). For an edge $e$ with one end $u\notin R$ and the other end in $R$,
+\[
+  \det M_R(G)=\det M_R(G-e)+z\det M_{R\cup\{u\}}(G-e),\qquad f_G(R)\le f_{G-e}(R)+f_{G-e}(R\cup\{u\}),
+\]
+and if there is no such edge and $R\ne V$, then $f(R)=0$ while $\det M_R\ge0$. By induction on the number of
+edges, $\det M_R\ge z^{\,n-|R|}f(R)$. Since the determinant is affine in each diagonal entry and all these
+matrices are positive semidefinite, for every vertex $r$
+\begin{equation}\label{eq:count}
+  \det K(z)\ \ge\ (1-z)\,d_r\,z^{\,n-1}\,\tau(G)\qquad(0\le z\le1).
+\end{equation}
+Only this half of the matrix-tree theorem is needed here. [\code{numForests\_le\_det}, \code{det\_Kmat\_ge}]
+
+\subsection*{Step 5: the class $\cC'$}
+Let $G\in\cC'$ and $z=1-1/n$. Inequality (ii) with $b=1$ gives $\Xi(z)\le\Xi(1)+3n(1-z)=\Xi(1)+3$. By
+\eqref{eq:count}, Proposition~\ref{prop:bethe}, \eqref{eq:xi1}, $d_r\ge2$ and $(1-1/n)^{n-1}\ge1/n$,
+\[
+  \tau(G)\ \le\ n^2e^3\,\tht^{\,m}.
+\]
+Applying this to $N$ copies of $G$ glued at a vertex, as in Section~\ref{sec:proof} (only
+$\tau(G_N)\ge\tau(G)^N$ is needed), gives $\tau(G)^N\le(nN)^2e^3\,\tht^{\,Nm}$ for all $N$, hence
+$\tau(G)\le\tht^{\,m}$. [\code{numTrees\_le\_classC}, \code{numTrees\_pow\_le}, \code{numTrees\_le\_exp\_classC}]
+
+\subsection*{Step 6: all multigraphs}
+We prove $\tau(G)\le\tht^{\,m}$ by induction on $m$, with the following cases in place of (R1)--(R5).
+If $n\le1$, then $\tau\le1$. If $n\ge2$ and some vertex is not joined to any other vertex, then $\tau=0$; this
+covers vertices of degree $0$ and a vertex of degree $2$ that carries a loop. If a vertex has degree $1$, with
+edge $f$, then every spanning tree contains $f$, so $\tau(G)\le\tau(G/f)\le\tht^{\,m-1}$. If $G\in\cC'$, use
+Step~5. In the remaining case some edge $e$, not a loop, joins two vertices of degree $2$, and
+\[
+  \tau(G)\ \le\ \tau(G/e)+\tau(G-e)\ \le\ \tht^{\,m-1}+\tht^{\,m-2}\ \le\ \tht^{\,m},
+\]
+because $G-e$ has a vertex of degree $1$ and $\tht+1\le\tht^{2}$. Loops need no reduction, since Steps 1--5 allow
+them. The strict inequality follows from parity: $\tau^2\,8^m=27^m$ is impossible for $m\ge1$.
+[\code{pendant\_step}, \code{numTrees\_le\_pow}, \code{kenyon\_bound}]
+
+\subsection*{The lower bound in Corollary~\ref{cor:sup}}
+Fix an integer $p\ge2$. Let $\alpha(x,y)=(x+2y,y)$ and $\beta(x,y)=(x,y+2x)$, two permutations of
+$(\mathbb{Z}/p)^2$, let $H_p$ be the group they generate, and let $\Gamma_p$ be the multigraph with vertex set
+$H_p$ and edges $\{g,g\alpha\}$ and $\{g,g\beta\}$ for $g\in H_p$. It is connected and $4$-regular, with
+$N=|H_p|$ vertices and $2N$ edges.
+
+\smallskip\noindent\emph{(a) No short closed words.} A word in $\alpha^{\pm1},\beta^{\pm1}$ is \emph{reduced} if
+no letter is followed by its inverse. If $3^J+1<p$, then no nonempty reduced word of length at most $J$ is the
+identity of $H_p$. Indeed, let $\alpha,\beta$ act on $\mathbb{Z}^2$ by the same formulas and apply the word, letter
+by letter, to the vector $(0,1)$ if the first letter applied is $\alpha^{\pm1}$, and to $(1,0)$ otherwise. By
+induction, after a letter $\alpha^{\varepsilon}$ the vector $(x,y)$ satisfies $|x|>|y|$, $\varepsilon xy\ge0$ and
+$|x|\ge2$, and after $\beta^{\varepsilon}$ it satisfies $|y|>|x|$, $\varepsilon xy\ge0$ and $|y|\ge2$ (Sanov's
+argument). The entries are at most $3^J$ in absolute value. So the final vector differs from the initial one in
+some coordinate, by a nonzero integer of absolute value at most $3^J+1<p$, hence also modulo $p$.
+[\code{sanov}, \code{cay\_free}, \code{cay\_conn}]
+
+\smallskip\noindent\emph{(b) The regular case.} On a $4$-regular multigraph the functions \eqref{eq:hz} are
+constant. Their limit $s=s(z)$ satisfies $s(4-3zs)=z$ and $s\le z/3$, so $s(1)=\frac13$,
+$\Xi(z)=N\bigl(\log(4-4zs)-2\log(1-s^2)\bigr)$ and $\Xi(1)=N\log\frac{27}8$. In addition to (ii) we have
+$\Xi(b)-\Xi(a)\le-(b-a)W(a)$ for $0\le a\le b\le1$, because the function
+$k\mapsto\log(4-4bk)-2\log(1-k^2)$ decreases on $[0,s(b)]$, where $3bk^2-4k+b\ge0$. In particular
+$\Xi(z)\ge\Xi(1)$. [\code{Xi\_one\_reg}, \code{Xi\_step\_reg}]
+
+\smallskip\noindent\emph{(c) An upper bound for the Green function.} Consider any finite set with two
+permutations $\alpha,\beta$ and the $4$-regular multigraph that joins every point to its images. Fix a vertex $v$
+and let $u_j(x)$ be the number of reduced words of length $j$ that take $v$ to $x$. With
+$(Ag)(x)=\sum_{y\sim x}g(y)$,
+\[
+  Au_0=u_1,\qquad Au_1=u_2+4u_0,\qquad Au_j=u_{j+1}+3u_{j-1}\quad(j\ge2).
+\]
+Let $0\le t<1$, $s=s(t)$, $P=4-4ts$ and $\Psi=P^{-1}\sum_{j\le J}s^ju_j$ with $J\ge1$. The recurrences and
+$s(4-3ts)=t$ give $K(t)\Psi=\delta_v+P^{-1}\bigl(3ts^{J+1}u_J-ts^{J}u_{J+1}\bigr)$. Since $K(t)^{-1}$ has
+nonnegative entries, $K(t)\mathbf{1}=4(1-t)\mathbf{1}$ and $0\le u_{J+1}\le4\cdot3^{J}$,
+\[
+  \bigl(K(t)^{-1}\bigr)_{vv}\ \le\ \Psi(v)+\frac{t\,(3s)^J}{P\,(1-t)}.
+\]
+If no reduced word of length $1,\dots,k+1$ fixes $v$, then $\Psi(v)=1/P$ for $J=k+1$, and $3s\le t$ gives
+$(K(t)^{-1})_{vv}\le\bigl(1+t^{k+2}/(1-t)\bigr)/P$. If this holds at every vertex, then, as
+$t\,\tr(K^{-1}A)=\sum_v\bigl(4(K^{-1})_{vv}-1\bigr)$ and $P\ge2$,
+\begin{equation}\label{eq:trup}
+  \tr\bigl(K(t)^{-1}A\bigr)\ \le\ W(t)+N\,\frac{2t^{k+1}}{1-t}\qquad(0<t<1).
+\end{equation}
+[\code{aop\_uW\_succ}, \code{green\_upper}, \code{trace\_inv\_mul\_Amat\_le}]
+
+\smallskip\noindent\emph{(d) A lower bound for the determinant.} Inequality (i) with the roles of $a$ and $b$
+exchanged gives $\log\det K(b)-\log\det K(a)\ge-(b-a)\tr\bigl(K(b)^{-1}A\bigr)$. With \eqref{eq:trup}, (b) and
+the same telescoping as in Proposition~\ref{prop:bethe},
+\[
+  \log\det K(z)\ \ge\ \Xi(z)-N\,\frac{2z^{k+1}}{1-z}\ \ge\ N\log\tfrac{27}{8}-N\,\frac{2z^{k+1}}{1-z}\qquad(0\le z<1).
+\]
+[\code{det\_Kmat\_step\_rev}, \code{logdet\_ge}]
+
+\smallskip\noindent\emph{(e) From spanning trees to the determinant.} Let $G$ be a connected multigraph and let
+$0\le z\le1$, $0\le y\le1$ with $(1-z)d_v\le y^2$ for all $v$. Then
+\begin{equation}\label{eq:detup}
+  \det K(z)\ \le\ \tau(G)\,(1+y)^{n+m}.
+\end{equation}
+Indeed, $\det K(z)=\sum_{Q\subseteq V}\prod_{v\in Q}(1-z)d_v\cdot\det M_Q$, where $M_Q$ is now $z(D-A)$ with the rows
+and columns of $Q$ replaced by those of the identity. The recursion of Step~4, read in the other direction,
+gives $\det M_Q\le z^{\,n-|Q|}f(Q)$; here $\det M_Q=0$ if $Q\ne V$ and no edge has exactly one end in $Q$. Every
+forest counted by $f(Q)$, $Q\ne\emptyset$, is contained in a spanning tree, so $f(Q)$ is at most $\tau(G)$ times
+the number of sets of $|Q|-1$ edges, and $f(\emptyset)=0$. As $y^{2|Q|}\le y^{|Q|+|S|}$ for $|S|=|Q|-1$,
+$\det K(z)\le\tau(G)\sum_{Q\subseteq V}\sum_{S\subseteq E}y^{|Q|+|S|}=\tau(G)(1+y)^{n+m}$.
+[\code{det\_le\_numForests}, \code{exists\_tree\_of\_forest}, \code{det\_Kmat\_le\_numTrees}]
+
+\smallskip\noindent\emph{(f) Conclusion.} Let $0<y\le1$, $z=1-y^2/4$ and $p=3^{k+1}+2$. By (a), (d) and
+\eqref{eq:detup} for $\Gamma_p$, where $n=N$ and $m=2N$,
+\[
+  \tau(\Gamma_p)^{1/N}\ \ge\ \frac{27}{8}\,\exp\Bigl(-\frac{2z^{k+1}}{1-z}\Bigr)\,(1+y)^{-3}.
+\]
+Given $c<27/8$, choose $y$ small and then $k$ large. Since $m=2N$, this is $\tau(\Gamma_p)>c^{\,m/2}$.
+[\code{numTrees\_ge}, \code{kenyon\_sharp}]
+
+\begin{remark}\label{rem:second}
+\textup{(1)} Parts (c)--(f) apply to every connected $4$-regular multigraph that is presented by two permutations
+and has no closed reduced word of length at most $k+1$; reduced words are walks without backtracking, so this
+holds when the girth exceeds $k+1$. By Petersen's theorem every $4$-regular multigraph has such a presentation.
+With Theorem~\ref{thm:main} this gives another proof of Proposition~\ref{prop:sharp}; this last deduction is
+not formalised. \textup{(2)} We did not search the literature for the ingredients of this section.
+Proposition~\ref{prop:bethe} says that the Bethe approximation is an upper bound for the determinant of $D-zA$;
+statements of this kind are known in related settings, and we make no claim of novelty for it or for the other
+steps. \textup{(3)} The route was found while formalising the theorem and has been checked only by Lean and by
+the AI agents that wrote it, not by an external expert.
+\end{remark}
+
 \appendix
 \section{Computer-assisted parts and verification package}\label{app:num}
 
-The proof uses computation in one place only: the finitely many inequalities of Lemma~\ref{lem:num} and the three
-constants of Case~C. The package accompanying this paper (\url{https://github.com/kosza123/flow-certificate-thresholds}, directory \code{spanning-trees-per-edge}, and the Zenodo record of this paper) contains the following.
+The proof of Sections \ref{sec:red}--\ref{sec:proof} uses computation in one place only: the finitely many
+inequalities of Lemma~\ref{lem:num} and the three constants of Case~C. The package accompanying this paper (\url{https://github.com/kosza123/flow-certificate-thresholds}, directory \code{spanning-trees-per-edge}, and the Zenodo record of this paper) contains the following.
 \begin{itemize}
 \item \code{verify/certify\_intervals.py}: evaluates $f_d$ at the rational candidate points for $2\le d\le119$ with
   $60$-digit interval arithmetic (\code{mpmath.iv}) and checks Lemma~\ref{lem:num}, the constants of Case~C, the
@@ -497,6 +738,15 @@ constants of Case~C. The package accompanying this paper (\url{https://github.co
   replays every module in the kernel checker; a recorded clean-room run is included
   (\code{VERIFICATION\_CLEANROOM.txt}). The formal proof of Case~C does not use the sign analysis of $H_d'$ given
   in Section~\ref{sec:edge} and is in this sense independent of it.\end{sloppypar}
+\item \begin{sloppypar}\code{lean-kenyon/} (new in version~2): the Lean~4 package \code{Kenyon} (same Lean and
+  Mathlib versions; $21$ modules, about $5000$ lines, together with unchanged copies of the eight modules of
+  \code{TreeEntropy}). It contains the complete formal proofs of Theorem~\ref{thm:main}
+  (\code{Kenyon.kenyon\_bound}, \code{Kenyon.kenyon\_bound\_real}) and of the lower bound in
+  Corollary~\ref{cor:sup} (\code{Kenyon.kenyon\_sharp}), along the route of Section~\ref{sec:second}. The script
+  \code{scripts/check.sh} builds the package, scans for placeholders, prints the axioms of $39$ theorems and
+  replays the $29$ modules in the kernel checker; a recorded clean-room run with three negative controls is
+  included (\code{VERIFICATION\_CLEANROOM.txt}, with the raw outputs in \code{logs/}). The file
+  \code{PROOF\_ROUTE.md} lists the steps with the names of the Lean theorems.\end{sloppypar}
 \item \code{verify/check\_class.py}: for random multigraphs of $\cC$ (including vertices of degree $2$) it solves
   \eqref{eq:h}, checks \eqref{eq:I}, the ranges of Lemma~\ref{lem:ranges}, the closed formula of
   Lemma~\ref{lem:formula} against a numerical integration of the return generating function, and
@@ -517,12 +767,17 @@ SAPIO MORPHEUS project uses models from OpenAI and Anthropic.
   line by line and recomputed the numerical claims, including the exhaustive computation; another such agent
   carried out the literature search.
   
-\item The Lean formalisation was written by a further AI agent based on Anthropic's Claude.
+\item The Lean formalisation of the key inequality (version~1) was written by a further AI agent based on
+  Anthropic's Claude.
+\item The second proof (Section~\ref{sec:second}) and its complete Lean formalisation (version~2) were produced
+  by an AI agent based on Anthropic's Claude; every step is checked by Lean. The definitions and the final
+  statements were also read in the Lean source by the author's AI assistants, including a system from a second
+  developer. This is not an external expert review.
 \item The author selected the direction, directed the work and made the publication decisions, and takes
   responsibility for the content.
 \end{itemize}
 In line with common publication policies, AI systems are not listed as authors. No external expert has reviewed
-this manuscript at the time of writing.
+this manuscript or the formalisation at the time of writing.
 
 \begin{thebibliography}{99}
 \bibitem{BBGSS} J.~Banks, J.~Breuer, J.~Garza-Vargas, E.~Seelig, B.~Simon, \emph{A useful formula for periodic

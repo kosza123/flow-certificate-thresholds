@@ -6,12 +6,7 @@
     "PalomarKenyon.kenyon_bound_real",
     "PalomarKenyon.kenyon_sharp"
   ],
-  "definition_names": [
-    "PalomarKenyon.Adj",
-    "PalomarKenyon.Conn",
-    "PalomarKenyon.IsTree",
-    "PalomarKenyon.numTrees"
-  ],
+  "definition_names": [],
   "permitted_axioms": [
     "propext",
     "Quot.sound",

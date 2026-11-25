@@ -2,7 +2,7 @@
 
 **Not submitted, not independently verified.** This isolated branch contains a candidate port of the full Kenyon proof from the immutable [published baseline](https://github.com/kosza123/flow-certificate-thresholds/tree/b4c5b60f61766ea11cb7e72cc493181ac06f6c68/spanning-trees-per-edge/lean-kenyon). The published main branch and Zenodo record remain unchanged. Archived logs below describe the baseline only, not the new port.
 
-Challenge.lean states the four spanning-tree definitions and all three headline theorems without importing proof modules. Solution.lean repeats those definitions and uses the original full proofs. comparator.json requests exact comparison of all seven declarations.
+Challenge.lean states the four spanning-tree definitions and all three headline theorems without importing proof modules. Solution.lean repeats those definitions and uses the original full proofs. comparator.json requests comparison of all three headline theorems with their fully specified spanning-tree definitions. No definition holes are used: the four definitions are fixed, and the Challenge and Solution definition blocks are textually identical.
 
 Before submission, build and run the toolchain Comparator, inspect the actual output, and resolve any module-system errors. No submission or registration should be represented as complete before it actually is.
 

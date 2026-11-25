@@ -40,7 +40,7 @@ status:
     Both the universal strict bound and sharpness are formalized in the
     baseline. The planar optimum, exact fixed-edge extremizers, and the
     general large-girth limit quoted as Proposition 2 are outside scope.
-    This port is a candidate until compilation and Comparator checks succeed.
+    This port is a candidate until Comparator checks succeed. Initial CI compiled Challenge and Solution; Comparator rejected a configuration error, now corrected, with fresh verification pending.
   sorry_count: 0
   sorry_in_definitions: 0
   axioms: ["propext", "Classical.choice", "Quot.sound"]
@@ -76,7 +76,7 @@ review:
   notes: >-
     Baseline project logs document successful checking by the original AI
     workflow. No external human or Palomar verification is claimed.
-    The candidate port has not yet been compiled.
+    Initial CI compiled Challenge and Solution successfully; full Comparator acceptance remains pending.
 alignment:
   namespace: PalomarKenyon
   statements:

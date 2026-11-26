@@ -62,8 +62,17 @@ constant 1.8393 of Stoimenow slightly, to 1.8371.
   the sharp regime (the largest value found is 1.667 against 1.837).
 - **Recomputation.** Separate AI agents of the same project re-derived each step of the proof and of the paper and
   recomputed the numerical claims with their own code.
+- **Independent reproduction (26 November 2026, after version 2.0.0).** Carles Marín rebuilt the Lean package
+  `lean-kenyon/` at commit `b4c5b60` on Windows 11 with `scripts/check.sh` unmodified (39 axiom reports, kernel
+  replay of 29 modules; the 39 SHA-256 sums of the recorded clean-room run match), checked the axioms of the final
+  theorems himself, compared the definitions and both final statements with the paper, and tested the definition
+  of `tau` with his own spanning-tree decider, proved correct in Lean against these definitions (K3 = 3, K4 = 16
+  and six further cases). He was assisted by an AI system (Claude). Reported by e-mail and stated here with his
+  permission. This is a reproduction of the formal proof, not a referee report on the paper. Windows users: clone
+  with `core.autocrlf=false`, otherwise `check.sh` gets CRLF line endings.
 
-**Not done:** no external expert has reviewed the paper or the formalisation. The literature search was limited to
+**Not done:** no external expert has refereed the paper, and apart from the independent reproduction above nobody
+outside the project has reviewed the formalisation. The literature search was limited to
 open sources (see the paper, Section 8) and was not repeated for the second proof. We make no priority claim beyond
 what the paper states, and we welcome corrections.
 

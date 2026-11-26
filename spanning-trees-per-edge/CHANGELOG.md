@@ -1,5 +1,15 @@
 # Changes
 
+## After version 2.0.0 (GitHub only; not a new archived version)
+
+* **26 November 2026: independent reproduction recorded in the README.** Carles Marín rebuilt `lean-kenyon/` at
+  commit `b4c5b60` on Windows 11 with the unmodified `scripts/check.sh` (39 axiom reports, kernel replay of 29
+  modules, the 39 recorded SHA-256 sums match), checked the axioms and the faithfulness of the definitions and of
+  the two final statements, and tested the definition of `tau` with his own Lean-verified decider. Stated with his
+  permission; he was assisted by an AI system (Claude). The paper, the Lean sources and the recorded verification
+  are unchanged. His suggestions for a later version: an example such as K4 = 16 in `Kenyon/Examples.lean`, and a
+  non-release-candidate Lean toolchain.
+
 ## Version 2.0.0 (25 November 2026)
 
 Zenodo: [10.5281/zenodo.24523144](https://doi.org/10.5281/zenodo.24523144).

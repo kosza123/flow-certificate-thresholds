@@ -5,13 +5,16 @@
 Paper: [`paper/spanning_trees_per_edge.pdf`](paper/spanning_trees_per_edge.pdf) (LaTeX source in `paper/`),
 by Filip Majchrzak (SAPIO MORPHEUS project).
 
-Archived versions on Zenodo: version 2.0.0, DOI [10.5281/zenodo.24523144](https://doi.org/10.5281/zenodo.24523144);
+Archived versions on Zenodo: version 2.1.0, DOI [10.5281/zenodo.24562023](https://doi.org/10.5281/zenodo.24562023);
+version 2.0.0, DOI [10.5281/zenodo.24523144](https://doi.org/10.5281/zenodo.24523144);
 version 1.0.0, DOI [10.5281/zenodo.24504455](https://doi.org/10.5281/zenodo.24504455); all versions, DOI
 [10.5281/zenodo.24504454](https://doi.org/10.5281/zenodo.24504454). The paper of version 1 is kept in
 [`paper/v1.0.0/`](paper/v1.0.0/); changes are listed in [`CHANGELOG.md`](CHANGELOG.md).
 
 **New in version 2: both the universal bound and the sharpness of the constant are fully formalised in Lean 4**
-(directory [`lean-kenyon/`](lean-kenyon/)).
+(directory [`lean-kenyon/`](lean-kenyon/)). Version 2.1 adds a remark on exact arithmetic in resistor networks,
+the independent reproduction, a paragraph on context and possible applications, and the Lean example
+`Kenyon.numTrees_K4` (see [`CHANGELOG.md`](CHANGELOG.md)).
 
 ## The statement
 
@@ -99,14 +102,15 @@ Both use Lean `leanprover/lean4:v4.37.0-rc1` and Mathlib commit `53dad9ed98be841
 ```bash
 cd lean-kenyon
 lake exe cache get      # prebuilt Mathlib
-./scripts/check.sh      # prints "OK: build, 39 axiom reports, kernel replay of 29 modules"
+./scripts/check.sh      # prints "OK: build, 40 axiom reports, kernel replay of 29 modules"
 ```
 
 The main statements are `Kenyon.kenyon_bound`, `Kenyon.kenyon_bound_real` (`lean-kenyon/Kenyon/Main.lean`) and
 `Kenyon.kenyon_sharp` (`lean-kenyon/Kenyon/Sharp.lean`). See [`lean-kenyon/README.md`](lean-kenyon/README.md) for
 the exact statements and the definitions to read, [`lean-kenyon/PROOF_ROUTE.md`](lean-kenyon/PROOF_ROUTE.md) for
 the steps of the proof, and [`lean-kenyon/VERIFICATION_CLEANROOM.txt`](lean-kenyon/VERIFICATION_CLEANROOM.txt)
-with [`lean-kenyon/logs/`](lean-kenyon/logs/) for a recorded run.
+with [`lean-kenyon/logs/`](lean-kenyon/logs/) for the recorded run of version 2.0.0, and
+[`lean-kenyon/VERIFICATION_CLEANROOM_2.1.txt`](lean-kenyon/VERIFICATION_CLEANROOM_2.1.txt) for version 2.1.
 
 **`lean/` (version 1, unchanged): the edge inequality.**
 

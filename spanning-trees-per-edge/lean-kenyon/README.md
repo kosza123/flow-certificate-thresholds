@@ -44,11 +44,11 @@ Requirements: [elan](https://github.com/leanprover/elan), git, about 8 GB of fre
 
 ```bash
 lake exe cache get        # pre-built Mathlib for the pinned commit
-./scripts/check.sh        # prints "OK: build, 39 axiom reports, kernel replay of 29 modules"
+./scripts/check.sh        # prints "OK: build, 40 axiom reports, kernel replay of 29 modules"
 ```
 
 `scripts/check.sh` runs, and fails if any step fails: `lake build`; a scan of the sources for
-`sorry`, `admit`, `axiom`, `native_decide`; `scripts/PrintAxioms.lean` (for 39 theorems every
+`sorry`, `admit`, `axiom`, `native_decide`; `scripts/PrintAxioms.lean` (for 40 theorems every
 axiom used must be one of the three above); `leanchecker` (replay of every declaration in the
 Lean kernel) on the 29 modules that contain declarations. During the build Lake prints a hint
 about the module system for every Mathlib import; it is not an error.
@@ -74,8 +74,9 @@ noncomputable def numTrees (src tgt : E → V) : ℕ :=
 ```
 
 A spanning tree is a set of `|V| − 1` edges that joins every two vertices. `Kenyon/Examples.lean`
-checks the count on two small cases: one vertex with a loop has `1` spanning tree, two vertices
-with two parallel edges have `2`.
+checks the count on three small cases: one vertex with a loop has `1` spanning tree, two vertices
+with two parallel edges have `2`, and the complete graph `K4` has `16` (`Kenyon.numTrees_K4`, added in
+version 2.1).
 
 ## How the proof goes
 

@@ -1,0 +1,72 @@
+# Clean-room run of the candidate package (commands: lake exe cache get; ./scripts/check.sh)
+== start 2026-11-26T14:15:17Z
+Lean (version 4.37.0-rc1, x86_64-unknown-linux-gnu, commit 0b77e12952ad39077d80d8bd6b66d601f225c321, Release)
+Lake version 5.0.0-src+0b77e12 (Lean version 4.37.0-rc1)
+== cache get rc=0 time=264s
+Still decompressing downloaded files...
+Decompressed 9139 file(s)
+Already decompressed 9139 file(s)
+== check.sh rc=0 time=261s
+OK: build, 40 axiom reports, kernel replay of 29 modules
+== end 2026-11-26T14:24:13Z
+
+# Mathlib cache download (last lines)
+✔ [55/64] Built Cache.Upload.S3:c.o (303ms)
+✔ [56/64] Built Cache.Upload (162ms)
+✔ [58/64] Built Cache.Upload.Defs:c.o (145ms)
+✔ [59/64] Built Cache.Upload:c.o (125ms)
+✔ [60/64] Built Cache.Main (612ms)
+✔ [62/64] Built Cache.Requests:c.o (3.1s)
+✔ [63/64] Built Cache.Main:c.o (927ms)
+✔ [64/64] Built cache:exe (15s)
+Current branch: HEAD
+Using cache from origin: (some leanprover-community/mathlib4)
+Attempting to download 9139 file(s) from leanprover-community/mathlib4 cache at https://cache.mathlib.org/mathlib4-master
+
+Still decompressing downloaded files...
+Decompressed 9139 file(s)
+Already decompressed 9139 file(s)
+
+# SHA-256 of all 39 files against the expected list, before the run
+39 OK, 0 FAILED
+# after the run and after the negative controls (original package)
+./.gitignore: OK
+./Kenyon.lean: OK
+./Kenyon/Amplify.lean: OK
+./Kenyon/Bethe.lean: OK
+./Kenyon/BetheFun.lean: OK
+./Kenyon/Cayley.lean: OK
+./Kenyon/Contract.lean: OK
+./Kenyon/Count.lean: OK
+./Kenyon/Examples.lean: OK
+./Kenyon/Forest.lean: OK
+./Kenyon/ForestCount.lean: OK
+./Kenyon/Green.lean: OK
+./Kenyon/Lap.lean: OK
+./Kenyon/Levels.lean: OK
+./Kenyon/LogDet.lean: OK
+./Kenyon/Main.lean: OK
+./Kenyon/MatrixTree.lean: OK
+./Kenyon/MatrixTree2.lean: OK
+./Kenyon/OneStep.lean: OK
+./Kenyon/Regular.lean: OK
+./Kenyon/Sanov.lean: OK
+./Kenyon/Sharp.lean: OK
+./Kenyon/Super.lean: OK
+./PROOF_ROUTE.md: OK
+./README.md: OK
+./TreeEntropy.lean: OK
+./TreeEntropy/APriori.lean: OK
+./TreeEntropy/Darts.lean: OK
+./TreeEntropy/Large.lean: OK
+./TreeEntropy/Main.lean: OK
+./TreeEntropy/OneVar.lean: OK
+./TreeEntropy/Sharp.lean: OK
+./TreeEntropy/Sum.lean: OK
+./TreeEntropy/Table.lean: OK
+./lake-manifest.json: OK
+./lakefile.toml: OK
+./lean-toolchain: OK
+./scripts/PrintAxioms.lean: OK
+./scripts/check.sh: OK
+# lake-manifest.json identical to the candidate file: yes

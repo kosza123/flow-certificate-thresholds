@@ -1,5 +1,30 @@
 # Changes
 
+## Version 2.1.0 (26 November 2026)
+
+Zenodo: [10.5281/zenodo.24562023](https://doi.org/10.5281/zenodo.24562023).
+
+* **New in the paper: Remark "Exact arithmetic in resistor networks"** (after the corollary on currents). In a
+  connected network of `m` unit resistors fed by a unit current, every node potential (measured from a terminal)
+  and every branch current is a rational number whose denominator divides `tau(G)`; by Theorem 1 it has at most
+  `ceil((m/2) log2(27/8))` binary digits, about `0.8774 m`. The proof is Cramer's rule for the reduced Laplacian.
+  Not formalised.
+* **Paper: independent reproduction.** A paragraph on the reproduction by Carles Marín (see below) and a revised
+  "What has not been done".
+* **Paper: Question (1)** now cites the exact values of `T(m)` and the extremal multigraphs for `m <= 22` computed
+  by Marín (doi:10.5281/zenodo.24561280) and the structural results of the author's preliminary note
+  (doi:10.5281/zenodo.24562316).
+* **Paper: new subsection "Context and possible applications"**, which states the three consequences in
+  neighbouring areas and says explicitly that no practical advantage in the design of real networks has been shown.
+* **Lean: `Kenyon.numTrees_K4`** in `lean-kenyon/Kenyon/Examples.lean`: the complete graph on four vertices has
+  16 spanning trees (a third example next to `numTrees_loop` and `numTrees_digon`), as suggested by Carles Marín.
+  `scripts/PrintAxioms.lean` reports it, so `check.sh` now prints 40 axiom reports. No other Lean file changed. A
+  new clean-room run, by an AI session that did not write the change (40 axiom reports, kernel replay of 29
+  modules, three negative controls, SHA-256 of all 39 files), is recorded in
+  `lean-kenyon/VERIFICATION_CLEANROOM_2.1.txt` with raw outputs in `lean-kenyon/logs_2.1/`; the run of version
+  2.0.0 is kept in `lean-kenyon/VERIFICATION_CLEANROOM.txt` and `lean-kenyon/logs/`.
+* Unchanged: the statements and proofs of the paper, `verify/`, and the Lean package of version 1 in `lean/`.
+
 ## After version 2.0.0 (GitHub only; not a new archived version)
 
 * **26 November 2026: independent reproduction recorded in the README.** Carles Marín rebuilt `lean-kenyon/` at

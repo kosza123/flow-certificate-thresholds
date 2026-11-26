@@ -46,3 +46,4 @@ import Kenyon
 -- examples
 #print axioms Kenyon.numTrees_digon
 #print axioms Kenyon.numTrees_loop
+#print axioms Kenyon.numTrees_K4

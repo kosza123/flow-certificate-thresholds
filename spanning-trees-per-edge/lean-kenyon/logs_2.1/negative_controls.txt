@@ -1,0 +1,23 @@
+== (a) leanchecker on a nonexistent module (original package, read-only)
+exit code: 1
+uncaught exception: Could not find any oleans for: Kenyon.NoSuchModule
+
+== (b) copy with a sorry appended to Kenyon/Examples.lean
+theorem Kenyon.placeholderControl : (1 : Nat) = 2 := by sorry
+check.sh exit code: 1
+⚠ [18366/18367] Ran Kenyon:irArts
+Build completed successfully (18367 jobs).
+Kenyon/Examples.lean:139:theorem Kenyon.placeholderControl : (1 : Nat) = 2 := by sorry
+FAIL: placeholder, axiom or native_decide in the sources
+
+== (c) copy with a sorry-based theorem added to scripts/PrintAxioms.lean
+theorem axiomControl : (1 : Nat) = 2 := sorry
+#print axioms axiomControl
+check.sh exit code: 1
+Build completed successfully (18367 jobs).
+'axiomControl' depends on axioms: [sorryAx]
+FAIL: unexpected axiom
+
+real	0m32.665s
+user	0m33.320s
+sys	0m12.556s

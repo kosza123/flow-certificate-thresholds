@@ -26,8 +26,8 @@
 \title[Spanning trees per edge]{Spanning Trees per Edge:\\ A Sharp Bound and a Question of Kenyon\\[4pt] {\normalfont\large with a Lean~4 formalisation of the bound and of its sharpness}}
 \author{Filip Majchrzak}
 \address{Independent researcher, Poland (SAPIO MORPHEUS project)}
-\thanks{ORCID 0009-0007-3475-8900. Version 2.0, 25 November 2026, archived at Zenodo, \href{https://doi.org/10.5281/zenodo.24523144}{doi:10.5281/zenodo.24523144}. Version 1.0 of 24 November 2026 remains available at \href{https://doi.org/10.5281/zenodo.24504455}{doi:10.5281/zenodo.24504455}; all versions: \href{https://doi.org/10.5281/zenodo.24504454}{doi:10.5281/zenodo.24504454}. Changes in version 2: Section~\ref{sec:second}, the Lean package \code{lean-kenyon}, and the paragraphs on the status of verification; Sections 2--9 are unchanged. Text licensed CC BY 4.0; code Apache-2.0.}
-\date{25 November 2026}
+\thanks{ORCID 0009-0007-3475-8900. Version 2.1, 26 November 2026, archived at Zenodo, \href{https://doi.org/10.5281/zenodo.24562023}{doi:10.5281/zenodo.24562023}. Version 2.0 of 25 November 2026: \href{https://doi.org/10.5281/zenodo.24523144}{doi:10.5281/zenodo.24523144}. Version 1.0 of 24 November 2026 remains available at \href{https://doi.org/10.5281/zenodo.24504455}{doi:10.5281/zenodo.24504455}; all versions: \href{https://doi.org/10.5281/zenodo.24504454}{doi:10.5281/zenodo.24504454}. Changes in version 2: Section~\ref{sec:second}, the Lean package \code{lean-kenyon}, and the paragraphs on the status of verification; Sections 2--9 are unchanged. Changes in version 2.1: Remark~\ref{rem:bits}, Question~(1), the paragraph on context and possible applications, the record of an independent reproduction, and two examples in the Lean package; statements and proofs are unchanged. Text licensed CC BY 4.0; code Apache-2.0.}
+\date{26 November 2026}
 
 \begin{document}
 
@@ -122,6 +122,16 @@ growth constant studied in \cite{M2}. Then $1.7194145\le c\le\tht=1.8371173\ldot
 with an integer $N\ne0$ (Kirchhoff), so its reciprocal is at most $\tau(G)<\tht^{\,m}$; the lower bound is
 from~\cite{M2}. This replaces the upper bound $1.8393$ used there.
 
+\begin{remark}[Exact arithmetic in resistor networks]\label{rem:bits}
+Let $G$ be a connected network of $m$ unit resistors with a unit current fed in at one vertex and out at another.
+Every node potential, measured from one of the two terminals, and every branch current is a rational number whose
+denominator divides $\tau(G)$. By Theorem~\ref{thm:main} these denominators are smaller than $(27/8)^{m/2}$, so
+they have at most $\lceil \tfrac m2\log_2\tfrac{27}{8}\rceil$ binary digits, about $0.8774\,m$. Indeed, the
+potentials solve $L_0\varphi=b$, where the reduced Laplacian $L_0$ is an integer matrix with $\det L_0=\tau(G)$
+(Kirchhoff) and $b$ is an integer vector; by Cramer's rule $\varphi=\operatorname{adj}(L_0)\,b/\tau(G)$, and a
+branch current is a difference of two potentials.
+\end{remark}
+
 \subsection*{Method, and what is new}
 The proof has three parts.
 \begin{enumerate}
@@ -189,7 +199,14 @@ the end of the paper). We therefore state exactly what has been checked and how.
   $8{,}350{,}006$ connected loopless multigraphs with at most $14$ edges that are not trees (for a tree $\tau=1$).
   This is a sanity check far from the sharp regime.
 \end{itemize}
-What has not been done: no external expert has reviewed this paper or the formalisation. We welcome corrections.
+\emph{Independent reproduction (version 2.1).} Carles Mar\'in rebuilt the package \code{lean-kenyon} of version~2
+on another operating system with the unmodified check script (the recorded checksums match), checked the axioms of
+the final theorems himself, compared the definitions and the two final statements with this paper, and tested the
+definition of $\tau$ with his own spanning-tree decider proved correct in Lean against these definitions. He was
+assisted by an AI system (Claude). This is a reproduction of the formal proof, not a referee report.
+
+What has not been done: no external expert has refereed this paper, and apart from the reproduction just described
+nobody outside the project has reviewed the formalisation. We welcome corrections.
 
 \section{Reductions}\label{sec:red}
 
@@ -498,7 +515,10 @@ proof. It was not repeated or extended for the second proof of Section~\ref{sec:
 
 \textup{(1)} Kenyon's first question: which graphs with $m$ edges maximise $\tau$? By exhaustive computation the
 maximum of $\tau^{1/m}$ over connected multigraphs with at most $14$ edges is $1.667031$ ($\tau=1280$, $m=14$), far
-from $\tht$: small graphs are not close to extremal.
+from $\tht$: small graphs are not close to extremal. Exact values of the maximum $T(m)$ of $\tau$ and all extremal
+multigraphs for $m\le22$ were computed by Mar\'in~\cite{Marin}. Structural results on the maximisers, formalised in
+Lean (maximum degree at most $5$; for $m\ge6$ double edges only between vertices of degree $4$; a simple maximiser
+exists if and only if $m\notin\{2,4\}$), are in~\cite{M3}.
 \textup{(2)} The planar supremum. Since $\tht$ is exact for general graphs, a planar improvement must use faces,
 that is, short cycles of the graph and of its dual. \textup{(3)} Is $\tau(G)\le\tht^{\,m}$ true with a
 polynomial saving in $m$, as in McKay's bound for regular graphs?
@@ -757,6 +777,16 @@ inequalities of Lemma~\ref{lem:num} and the three constants of Case~C. The packa
   is a sanity check far from the sharp regime.
 \end{itemize}
 
+\subsection*{Context and possible applications}
+The number of spanning trees is a classical measure of the reliability of a network and enters, through
+Kirchhoff's theorem, the analysis of electrical networks. Three consequences of Theorem~\ref{thm:main} are
+mathematical statements in neighbouring areas: the bound for determinants of link diagrams
+(Corollary~\ref{cor:planar}), the bound for the smallest non-zero branch current in planar networks of unit
+resistors (Corollary~\ref{cor:current}), and the bound on the size of exact solutions of resistor networks
+(Remark~\ref{rem:bits}). Beyond these, the bound is a theoretical reference value against which the spanning-tree
+count of a given network can be compared. We have not shown any practical advantage in the design of real networks,
+where the number of nodes is fixed and links carry costs and weights; this remains a research question.
+
 \section*{Author contributions and use of AI}
 This work was carried out with substantial assistance from AI systems working under the author's direction. The
 SAPIO MORPHEUS project uses models from OpenAI and Anthropic.
@@ -806,6 +836,10 @@ this manuscript or the formalisation at the time of writing.
   (2005), 491--522; arXiv:math/0212165.
 \bibitem{M2} F.~Majchrzak, \emph{Two-port substitution and the growth of the smallest current in planar networks}
   (2026), \url{https://github.com/kosza123/flow-certificate-thresholds}, directory \code{growth-constant}.
+\bibitem{M3} F.~Majchrzak, \emph{Graphs with the most spanning trees for a given number of edges: structural results
+  with a Lean~4 formalisation (preliminary note)}, version~1.1, Zenodo (2026); doi:10.5281/zenodo.24562316.
+\bibitem{Marin} C.~Mar\'in, \emph{Maximum number of spanning trees of a multigraph with $m$ edges: exact values for
+  $m\le22$}, Zenodo (2026); doi:10.5281/zenodo.24561280.
 \bibitem{McKay} B.~D.~McKay, \emph{Spanning trees in regular graphs}, European J.\ Combin.\ \textbf{4} (1983),
   149--160.
 \bibitem{nauty} B.~D.~McKay, A.~Piperno, \emph{Practical graph isomorphism, II}, J.\ Symbolic Comput.\ \textbf{60}

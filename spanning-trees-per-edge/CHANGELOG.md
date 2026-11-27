@@ -1,5 +1,19 @@
 # Changes
 
+## Version 2.1.1 (27 November 2026)
+
+Zenodo: [10.5281/zenodo.24579938](https://doi.org/10.5281/zenodo.24579938).
+
+* **Paper: attribution stated separately.** McKay's paper "Spanning trees in regular graphs" (Europ. J. Combin. 4
+  (1983) 149-160) was checked against the original, a copy of which was kindly provided by B. D. McKay; earlier
+  versions quoted it through later papers. The paragraph after Corollary 3 now separates what McKay proved (the
+  constant c_d, the upper bound for simple regular graphs, and the sharpness of c_d under his Condition (B), his
+  Theorem 4.3) from what Lyons proved (convergence whenever the girth tends to infinity, the form used in
+  Proposition 2). A new paragraph "What is due to whom" lists the contributions of McKay, Lyons and Banks, Breuer,
+  Garza-Vargas, Seelig and Simon, and what is new in this paper as far as we could determine. The proof of
+  Proposition 2 and Section 8 (Literature) were adjusted accordingly.
+* Unchanged: every statement and proof, `verify/`, and both Lean packages (`lean/`, `lean-kenyon/`).
+
 ## Version 2.1.0 (26 November 2026)
 
 Zenodo: [10.5281/zenodo.24562023](https://doi.org/10.5281/zenodo.24562023).

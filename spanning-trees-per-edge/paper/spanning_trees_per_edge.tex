@@ -26,8 +26,8 @@
 \title[Spanning trees per edge]{Spanning Trees per Edge:\\ A Sharp Bound and a Question of Kenyon\\[4pt] {\normalfont\large with a Lean~4 formalisation of the bound and of its sharpness}}
 \author{Filip Majchrzak}
 \address{Independent researcher, Poland (SAPIO MORPHEUS project)}
-\thanks{ORCID 0009-0007-3475-8900. Version 2.1, 26 November 2026, archived at Zenodo, \href{https://doi.org/10.5281/zenodo.24562023}{doi:10.5281/zenodo.24562023}. Version 2.0 of 25 November 2026: \href{https://doi.org/10.5281/zenodo.24523144}{doi:10.5281/zenodo.24523144}. Version 1.0 of 24 November 2026 remains available at \href{https://doi.org/10.5281/zenodo.24504455}{doi:10.5281/zenodo.24504455}; all versions: \href{https://doi.org/10.5281/zenodo.24504454}{doi:10.5281/zenodo.24504454}. Changes in version 2: Section~\ref{sec:second}, the Lean package \code{lean-kenyon}, and the paragraphs on the status of verification; Sections 2--9 are unchanged. Changes in version 2.1: Remark~\ref{rem:bits}, Question~(1), the paragraph on context and possible applications, the record of an independent reproduction, and a third example in the Lean package ($\tau(K_4)=16$); apart from the new remark, the statements and their proofs are unchanged. Text licensed CC BY 4.0; code Apache-2.0.}
-\date{26 November 2026}
+\thanks{ORCID 0009-0007-3475-8900. Version 2.1.1, 27 November 2026, archived at Zenodo, \href{https://doi.org/10.5281/zenodo.24579938}{doi:10.5281/zenodo.24579938}. Version 2.1 of 26 November 2026: \href{https://doi.org/10.5281/zenodo.24562023}{doi:10.5281/zenodo.24562023}. Version 2.0 of 25 November 2026: \href{https://doi.org/10.5281/zenodo.24523144}{doi:10.5281/zenodo.24523144}. Version 1.0 of 24 November 2026 remains available at \href{https://doi.org/10.5281/zenodo.24504455}{doi:10.5281/zenodo.24504455}; all versions: \href{https://doi.org/10.5281/zenodo.24504454}{doi:10.5281/zenodo.24504454}. Changes in version 2: Section~\ref{sec:second}, the Lean package \code{lean-kenyon}, and the paragraphs on the status of verification; Sections 2--9 are unchanged. Changes in version 2.1: Remark~\ref{rem:bits}, Question~(1), the paragraph on context and possible applications, the record of an independent reproduction, and a third example in the Lean package ($\tau(K_4)=16$); apart from the new remark, the statements and their proofs are unchanged. Changes in version 2.1.1: after checking McKay's paper \cite{McKay} against the original, the results of McKay and of Lyons are attributed separately (the paragraph after Corollary~\ref{cor:sup}, the new paragraph \emph{What is due to whom}, the proof of Proposition~\ref{prop:sharp} and Section~\ref{sec:lit}); no statement or proof is changed. Text licensed CC BY 4.0; code Apache-2.0.}
+\date{27 November 2026}
 
 \begin{document}
 
@@ -68,13 +68,37 @@ If $G_j$ are connected $4$-regular graphs whose girth tends to infinity, then $\
 $\sup_G\tau(G)^{1/m}=\sqrt{27/8}$, the supremum being over all multigraphs with at least one edge; it is not attained.
 \end{corollary}
 
-Proposition~\ref{prop:sharp} is classical: McKay \cite{McKay} determined the constant $(d-1)^{d-1}/(d^2-2d)^{d/2-1}$
-for $d$-regular graphs, which is $27/8$ per vertex for $d=4$, and Lyons \cite{Lyons} (Theorem~3.3 and
-Example~3.16 in the arXiv version) proved the convergence for every sequence of connected graphs whose random weak
-limit is the $4$-regular tree; girth tending to infinity implies this. A $4$-regular graph with $N$ vertices has
-$m=2N$ edges. Corollary~\ref{cor:sup} follows from Theorem~\ref{thm:main} and Proposition~\ref{prop:sharp}.
+Proposition~\ref{prop:sharp} is classical and is not ours. McKay \cite{McKay} proved, for simple $d$-regular
+graphs on $n$ vertices, an upper bound on $\tau$ whose exponential rate per vertex is
+$c_d=(d-1)^{d-1}/(d^2-2d)^{d/2-1}$, which is $27/8$ for $d=4$, and showed that $c_d$ is best possible:
+$\tau(X_i)^{1/n_i}\to c_d$ for every sequence of connected $d$-regular graphs $X_i$ that satisfies his
+Condition~(B), a bound on the number of short cycles \cite[Theorem~4.3]{McKay}. Condition~(B) holds for regular
+graphs whose girth grows sufficiently fast, and with probability one for random regular graphs, as recorded in
+\cite[Section~4 and Theorem~4.1]{McKay}. Lyons \cite{Lyons} (Theorem~3.3 and Example~3.16 in the arXiv version)
+proved the convergence for every sequence of connected graphs whose random weak limit is the $4$-regular tree;
+girth tending to infinity implies this, and this is the form stated in Proposition~\ref{prop:sharp}. A
+$4$-regular graph with $N$ vertices has $m=2N$ edges. Corollary~\ref{cor:sup} follows from Theorem~\ref{thm:main} and Proposition~\ref{prop:sharp}.
 Section~\ref{sec:second} (new in version~2) gives a second proof of Theorem~\ref{thm:main} and a direct proof of the
 lower bound in Corollary~\ref{cor:sup}, on an explicit family of graphs; both are checked by Lean.
+
+\subsection*{What is due to whom}
+\begin{itemize}
+\item \emph{McKay} \cite{McKay}: the constant $c_d$, the upper bound on $\tau$ for simple $d$-regular graphs
+  (stated in the abstract of \cite{McKay}), and the fact that $c_d$ is best possible \cite[Theorem~4.3]{McKay}.
+  For $d=4$ his constant $27/8$ per vertex is the base $\sqrt{27/8}$ per edge in Theorem~\ref{thm:main}. McKay
+  also remarks that his results extend easily to multiple edges. The comparison with the universal cover in
+  part~1 of the proof below follows his method and that of Lyons.
+\item \emph{Lyons} \cite{Lyons}: the convergence for every sequence whose random weak limit is the $4$-regular
+  tree, in particular when the girth tends to infinity (the form used in Proposition~\ref{prop:sharp}), and the
+  maximality of the tree entropy of the regular tree among transitive graphs of a fixed degree.
+\item \emph{Banks, Breuer, Garza-Vargas, Seelig and Simon} \cite{BBGSS}: the closed formula for the tree entropy
+  of the universal cover (Lemma~\ref{lem:formula}; part~2 of the proof below).
+\item \emph{This paper}, as far as we could determine (Section~\ref{sec:lit}): Theorem~\ref{thm:main} for all
+  multigraphs, with arbitrary degrees and normalised per edge; the edge inequality $\Phi(G)\le mL$ (part~3 of
+  the proof below); the second proof and the explicit family of Section~\ref{sec:second}; the Lean formalisation
+  and the exhaustive check. Corollary~\ref{cor:sup} combines Theorem~\ref{thm:main} with the results of McKay and
+  Lyons.
+\end{itemize}
 
 \subsection*{A question of Kenyon}
 In his paper on tiling a rectangle with the fewest squares, Kenyon \cite{Kenyon} (\S9 of the arXiv version) needed
@@ -475,9 +499,12 @@ of $N$. Dividing by $N$ and letting $N\to\infty$ gives $\log\tau(G)\le mL$.
 \end{proof}
 
 \begin{proof}[Proof of Proposition~\ref{prop:sharp}]
-By \cite{Lyons} (Theorem~3.3 and Example~3.16 in the arXiv version; see also \cite{McKay,ChungYau}),
+By \cite{Lyons} (Theorem~3.3 and Example~3.16 in the arXiv version),
 $|V(G_j)|^{-1}\log\tau(G_j)\to3\log\frac32=\log\frac{27}8$
 for connected $4$-regular graphs $G_j$ whose girth tends to infinity; such graphs exist, and $m(G_j)=2|V(G_j)|$.
+For sequences that satisfy McKay's Condition~(B), for example $4$-regular graphs whose girth grows sufficiently
+fast or random $4$-regular graphs, the same limit is due to McKay \cite[Theorems~4.1 and~4.3]{McKay}; see also
+\cite{ChungYau}.
 \end{proof}
 
 Corollaries \ref{cor:sup}, \ref{cor:planar} and \ref{cor:current} were derived in the introduction; in
@@ -490,14 +517,16 @@ Section~\ref{sec:second}.
 We searched for earlier statements of Theorem~\ref{thm:main} and found none. The search covered the papers cited
 here and the papers citing \cite{Kenyon}, \cite{Stoimenow} and \cite{CKP} that are indexed in OpenAlex, as well as
 arXiv and the OEIS. It was limited to open sources: we could not consult MathOverflow, Google Scholar or
-publishers' sites. In particular we did not have access to \cite{Stoimenow}, \cite{McKay}, \cite{ChungYau},
+publishers' sites. In particular we did not have access to \cite{Stoimenow}, \cite{ChungYau},
 \cite{Grimmett}, \cite{Kostochka} or the journal version of \cite{Kenyon}; what we say about them is taken from
-\cite{CKP,GJKLZ} (Stoimenow), from \cite{GIKM,Lyons} (McKay, Chung--Yau, Kostochka), from \cite{ShrockWu}
+\cite{CKP,GJKLZ} (Stoimenow), from \cite{GIKM,Lyons} (Chung--Yau, Kostochka), from \cite{ShrockWu}
 (Grimmett) and from the arXiv version of \cite{Kenyon}. We therefore state plainly that the result may be known to
-specialists, and we would be grateful for references.
+specialists, and we would be grateful for references. For version~2.1.1 we checked \cite{McKay} against the
+original, a copy of which was kindly provided by B.~D.~McKay; earlier versions quoted it through
+\cite{GIKM,Lyons}.
 
-What we found. For regular graphs the sharp constant is McKay's \cite{McKay} (see \cite{GIKM} for the statement
-and \cite{ChungYau} for sharpness); for simple regular graphs the exponential rate $\tht$ already follows from it,
+What we found. For regular graphs the sharp constant is McKay's \cite{McKay}, who also proved that it is best
+possible \cite[Theorem~4.3]{McKay} (see also \cite{GIKM,ChungYau}); for simple regular graphs the exponential rate $\tht$ already follows from it,
 since the per-edge constants $1.7472$, $1.8371$, $1.8098$, $1.7571$ for $d=3,4,5,6$ are largest at $d=4$ (and they
 decrease for $d\ge4$). For general
 degree sequences we only found the bounds of Grimmett \cite{Grimmett} and Kostochka \cite{Kostochka}, whose

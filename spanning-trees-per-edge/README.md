@@ -5,7 +5,8 @@
 Paper: [`paper/spanning_trees_per_edge.pdf`](paper/spanning_trees_per_edge.pdf) (LaTeX source in `paper/`),
 by Filip Majchrzak (SAPIO MORPHEUS project).
 
-Archived versions on Zenodo: version 2.1.0, DOI [10.5281/zenodo.24562023](https://doi.org/10.5281/zenodo.24562023);
+Archived versions on Zenodo: version 2.1.1, DOI [10.5281/zenodo.24579938](https://doi.org/10.5281/zenodo.24579938);
+version 2.1.0, DOI [10.5281/zenodo.24562023](https://doi.org/10.5281/zenodo.24562023);
 version 2.0.0, DOI [10.5281/zenodo.24523144](https://doi.org/10.5281/zenodo.24523144);
 version 1.0.0, DOI [10.5281/zenodo.24504455](https://doi.org/10.5281/zenodo.24504455); all versions, DOI
 [10.5281/zenodo.24504454](https://doi.org/10.5281/zenodo.24504454). The paper of version 1 is kept in
@@ -14,7 +15,8 @@ version 1.0.0, DOI [10.5281/zenodo.24504455](https://doi.org/10.5281/zenodo.2450
 **New in version 2: both the universal bound and the sharpness of the constant are fully formalised in Lean 4**
 (directory [`lean-kenyon/`](lean-kenyon/)). Version 2.1 adds a remark on exact arithmetic in resistor networks,
 the independent reproduction, a paragraph on context and possible applications, and the Lean example
-`Kenyon.numTrees_K4` (see [`CHANGELOG.md`](CHANGELOG.md)).
+`Kenyon.numTrees_K4`. Version 2.1.1 states separately what is due to McKay, to Lyons and to this paper, after a
+check of McKay's 1983 paper against the original (see [`CHANGELOG.md`](CHANGELOG.md)).
 
 ## The statement
 
